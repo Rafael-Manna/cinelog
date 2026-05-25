@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof titulo !== 'undefined' ? titulo : 'Letterbox' %></title>
+
+  <%# Font Awesome via CDN - biblioteca gratuita com milhares de icones.
+      Carregamos no <head> pra os icones aparecerem assim que a pagina renderiza. %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <i class="fa-solid fa-clapperboard logo-icon"></i>
+        <span>CineLog</span>
+      </a>
+      <div class="nav-links">
+        <% if (usuario) { %>
+          <a href="/">Feed</a>
+          <a href="/posts/novo">Nova avaliacao</a>
+          <a href="/perfil" class="nav-user">
+            <%- include('avatar', { user: usuario, tamanho: 'sm' }) %>
+            <span><%= usuario.nome %></span>
+          </a>
+          <% if (usuario.role === 'admin') { %>
+            <a href="/admin" class="admin-link">Admin</a>
+          <% } %>
+          <form action="/logout" method="POST" class="inline-form">
+            <button type="submit" class="btn-link">Sair</button>
+          </form>
+        <% } else { %>
+          <a href="/login">Entrar</a>
+          <a href="/registro">Cadastrar</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <% if (success && success.length) { %>
+      <div class="flash flash-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="flash flash-error"><%= error %></div>
+    <% } %>

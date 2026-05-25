@@ -1,0 +1,18 @@
+<%# Partial reusavel pra mostrar o avatar de qualquer usuario. %>
+<%# Recebe: user (com id, nome, avatarUrl) e tamanho ('sm', 'md' ou 'lg'). %>
+<%
+  // Tamanho padrao se nao passar.
+  const tam = (typeof tamanho !== 'undefined') ? tamanho : 'md';
+
+  // Cor de fundo deterministica baseada no id do usuario.
+  // Assim cada usuario sempre tem a mesma cor sem precisar guardar no banco.
+  const cores = ['#e57373', '#ba68c8', '#7986cb', '#4fc3f7', '#4db6ac',
+                 '#81c784', '#dce775', '#ffd54f', '#ffb74d', '#a1887f'];
+  const cor = cores[user.id % cores.length];
+  const inicial = user.nome ? user.nome.charAt(0).toUpperCase() : '?';
+%>
+<% if (user.avatarUrl) { %>
+  <img src="<%= user.avatarUrl %>" alt="<%= user.nome %>" class="avatar avatar-<%= tam %>">
+<% } else { %>
+  <span class="avatar avatar-<%= tam %> avatar-placeholder" style="background:<%= cor %>"><%= inicial %></span>
+<% } %>

@@ -1,0 +1,26 @@
+<%- include('../partials/header', { titulo: 'Painel admin' }) %>
+
+<header class="page-header">
+  <h1>Painel administrativo</h1>
+</header>
+
+<div class="grid-stats">
+  <div class="card stat">
+    <span class="stat-num"><%= totalUsuarios %></span>
+    <span class="muted">Usuarios</span>
+  </div>
+  <div class="card stat">
+    <span class="stat-num"><%= totalPosts %></span>
+    <span class="muted">Publicacoes</span>
+  </div>
+  <div class="card stat">
+    <span class="stat-num"><%= totalComentarios %></span>
+    <span class="muted">Comentarios</span>
+  </div>
+</div>
+
+<div class="acoes-painel">
+  <a href="/admin/usuarios" class="btn btn-primary">Gerenciar usuarios</a>
+</div>
+
+<%- include('../partials/footer') %>

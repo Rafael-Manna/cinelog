@@ -1,0 +1,44 @@
+<%- include('../partials/header', { titulo: 'Usuarios' }) %>
+
+<header class="page-header">
+  <h1>Usuarios</h1>
+  <a href="/admin" class="btn btn-secondary">Voltar</a>
+</header>
+
+<div class="card">
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Papel</th>
+        <th>Criado em</th>
+        <th>Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% usuarios.forEach(u => { %>
+        <tr>
+          <td><%= u.nome %></td>
+          <td><%= u.email %></td>
+          <td><span class="tag <%= u.role === 'admin' ? 'tag-admin' : '' %>"><%= u.role %></span></td>
+          <td><%= new Date(u.createdAt).toLocaleDateString('pt-BR') %></td>
+          <td class="acoes-tabela">
+            <% if (u.id !== usuario.id) { %>
+              <form action="/admin/usuarios/<%= u.id %>/role" method="POST" class="inline-form">
+                <button type="submit" class="btn-link">tornar <%= u.role === 'admin' ? 'usuario' : 'admin' %></button>
+              </form>
+              <form action="/admin/usuarios/<%= u.id %>/excluir" method="POST" class="inline-form" onsubmit="return confirm('Excluir usuario e todas suas publicacoes?');">
+                <button type="submit" class="btn-link danger">excluir</button>
+              </form>
+            <% } else { %>
+              <span class="muted">(voce)</span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>

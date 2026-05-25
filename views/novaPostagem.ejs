@@ -1,0 +1,193 @@
+<%- include('partials/header', { titulo: 'Nova avaliacao' }) %>
+
+<div class="card">
+  <h1>Nova avaliacao</h1>
+
+  <form action="/posts/novo" method="POST">
+    <%# Campo de busca com autocomplete. NAO e o campo "titulo" oficial -
+        e so a interface. O titulo escolhido vai para um input hidden abaixo. %>
+    <label>Buscar filme ou serie
+      <div class="autocomplete-wrapper">
+        <input type="text" id="busca" placeholder="Digite o nome (ex: Matrix, Breaking Bad)..." autocomplete="off">
+        <%# Dropdown com os resultados. Comeca escondido. %>
+        <ul id="resultados" class="autocomplete-resultados hidden"></ul>
+      </div>
+      <small class="muted">Escolha da lista para preencher automaticamente, ou digite um titulo manualmente abaixo.</small>
+    </label>
+
+    <%# Preview do titulo escolhido (poster + nome). Aparece quando o usuario seleciona. %>
+    <div id="preview" class="preview-escolha hidden">
+      <img id="preview-poster" src="" alt="poster">
+      <div>
+        <strong id="preview-titulo"></strong>
+        <span class="muted" id="preview-ano"></span>
+      </div>
+      <button type="button" class="btn-link danger" onclick="limparEscolha()">remover escolha</button>
+    </div>
+
+    <%# Campos REAIS que vao ser enviados pro backend. %>
+    <label>Titulo
+      <input type="text" name="titulo" id="titulo" required>
+    </label>
+
+    <label>Categoria (filme, serie, livro, etc)
+      <input type="text" name="categoria" id="categoria" required>
+    </label>
+
+    <%# Campos hidden: preenchidos automaticamente quando o usuario escolhe da lista. %>
+    <input type="hidden" name="posterUrl" id="posterUrl">
+    <input type="hidden" name="imdbId" id="imdbId">
+
+    <label>Nota (1 a 5)
+      <select name="nota" required>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+      </select>
+    </label>
+
+    <label>Sua avaliacao
+      <textarea name="conteudo" rows="6" required></textarea>
+    </label>
+
+    <button type="submit" class="btn btn-primary">Publicar</button>
+    <a href="/" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+
+<%# ============ SCRIPT DO AUTOCOMPLETE ============
+    JavaScript "vanilla" (sem framework). Tudo roda no navegador. %>
+<script>
+  // Pega referencias aos elementos da pagina pra manipular depois.
+  const inputBusca = document.getElementById('busca');
+  const listaResultados = document.getElementById('resultados');
+  const preview = document.getElementById('preview');
+  const previewPoster = document.getElementById('preview-poster');
+  const previewTitulo = document.getElementById('preview-titulo');
+  const previewAno = document.getElementById('preview-ano');
+  const inputTitulo = document.getElementById('titulo');
+  const inputCategoria = document.getElementById('categoria');
+  const inputPosterUrl = document.getElementById('posterUrl');
+  const inputImdbId = document.getElementById('imdbId');
+
+  // "Debounce": espera o usuario parar de digitar antes de chamar a API.
+  // Sem isso, faria uma requisicao a cada tecla. Com 300ms da pra digitar
+  // sem disparar dezenas de chamadas.
+  let timeoutId = null;
+
+  inputBusca.addEventListener('input', () => {
+    const termo = inputBusca.value.trim();
+
+    // Cancela qualquer busca anterior que estava agendada.
+    clearTimeout(timeoutId);
+
+    if (termo.length < 2) {
+      listaResultados.classList.add('hidden');
+      return;
+    }
+
+    // Agenda a busca pra rodar 300ms depois.
+    timeoutId = setTimeout(() => buscar(termo), 300);
+  });
+
+  async function buscar(termo) {
+    try {
+      // fetch chama nosso proxy (nao o OMDb diretamente!).
+      // encodeURIComponent escapa o termo pra URL.
+      const resposta = await fetch(`/api/buscar?q=${encodeURIComponent(termo)}`);
+      const dados = await resposta.json();
+
+      mostrarResultados(dados.resultados || []);
+    } catch (err) {
+      console.error('Erro na busca:', err);
+    }
+  }
+
+  function mostrarResultados(itens) {
+    // Limpa o que tinha antes.
+    listaResultados.innerHTML = '';
+
+    if (!itens.length) {
+      listaResultados.classList.add('hidden');
+      return;
+    }
+
+    // Cria um <li> pra cada resultado.
+    itens.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'autocomplete-item';
+
+      // Monta o HTML interno. textContent (no titulo/ano) e mais seguro que innerHTML
+      // porque escapa caracteres especiais automaticamente.
+      const img = document.createElement('img');
+      img.src = item.posterUrl || '/css/no-poster.png';
+      img.alt = '';
+      img.onerror = () => { img.style.display = 'none'; };
+
+      const info = document.createElement('div');
+      info.className = 'autocomplete-info';
+
+      const tituloEl = document.createElement('strong');
+      tituloEl.textContent = item.titulo;
+
+      const metaEl = document.createElement('span');
+      metaEl.className = 'muted';
+      metaEl.textContent = `${item.ano} - ${item.categoria}`;
+
+      info.appendChild(tituloEl);
+      info.appendChild(metaEl);
+      li.appendChild(img);
+      li.appendChild(info);
+
+      // Ao clicar num resultado, preenche o formulario.
+      li.addEventListener('click', () => escolher(item));
+
+      listaResultados.appendChild(li);
+    });
+
+    listaResultados.classList.remove('hidden');
+  }
+
+  function escolher(item) {
+    // Preenche os campos do formulario com os dados do item escolhido.
+    inputTitulo.value = item.titulo;
+    inputCategoria.value = item.categoria;
+    inputPosterUrl.value = item.posterUrl || '';
+    inputImdbId.value = item.imdbId || '';
+
+    // Mostra o preview com a capa.
+    if (item.posterUrl) {
+      previewPoster.src = item.posterUrl;
+      previewPoster.style.display = 'block';
+    } else {
+      previewPoster.style.display = 'none';
+    }
+    previewTitulo.textContent = item.titulo;
+    previewAno.textContent = ` (${item.ano})`;
+    preview.classList.remove('hidden');
+
+    // Fecha o dropdown e limpa o campo de busca.
+    listaResultados.classList.add('hidden');
+    inputBusca.value = '';
+  }
+
+  // Permite o usuario "remover" a escolha (volta a poder digitar do zero).
+  function limparEscolha() {
+    inputTitulo.value = '';
+    inputCategoria.value = '';
+    inputPosterUrl.value = '';
+    inputImdbId.value = '';
+    preview.classList.add('hidden');
+  }
+
+  // Fecha o dropdown quando clicar fora dele.
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.autocomplete-wrapper')) {
+      listaResultados.classList.add('hidden');
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

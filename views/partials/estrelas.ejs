@@ -1,0 +1,8 @@
+<%# Partial reusavel pra mostrar 5 estrelas de avaliacao. %>
+<%# Recebe: nota (numero de 1 a 5). %>
+<%# Usa Font Awesome: fa-solid = estrela cheia, fa-regular = estrela com contorno. %>
+<span class="nota">
+  <% for (let i = 1; i <= 5; i++) { %>
+    <i class="<%= i <= nota ? 'fa-solid' : 'fa-regular' %> fa-star"></i>
+  <% } %>
+</span>

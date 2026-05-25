@@ -1,0 +1,54 @@
+<%- include('partials/header', { titulo: 'Feed' }) %>
+
+<header class="page-header">
+  <h1>Feed</h1>
+  <a href="/posts/novo" class="btn btn-primary">+ Nova avaliacao</a>
+</header>
+
+<% if (categorias && categorias.length) { %>
+  <div class="filtros">
+    <span class="muted">Filtrar:</span>
+    <a href="/" class="<%= !categoriaAtual ? 'tag active' : 'tag' %>">todas</a>
+    <% categorias.forEach(c => { %>
+      <a href="/?categoria=<%= encodeURIComponent(c) %>" class="<%= categoriaAtual === c ? 'tag active' : 'tag' %>"><%= c %></a>
+    <% }) %>
+  </div>
+<% } %>
+
+<% if (!posts.length) { %>
+  <p class="muted">Ainda nao ha publicacoes. <a href="/posts/novo">Seja o primeiro!</a></p>
+<% } %>
+
+<div class="post-list">
+  <% posts.forEach(post => { %>
+    <article class="card post-card">
+      <div class="post-autor">
+        <%- include('partials/avatar', { user: post.User, tamanho: 'md' }) %>
+        <div class="post-autor-info">
+          <a href="/usuarios/<%= post.User.id %>" class="autor-nome"><%= post.User.nome %></a>
+          <span class="muted"><%= new Date(post.createdAt).toLocaleString('pt-BR') %></span>
+        </div>
+        <%- include('partials/estrelas', { nota: post.nota }) %>
+      </div>
+
+      <div class="post-corpo">
+        <% if (post.posterUrl) { %>
+          <a href="/posts/<%= post.id %>" class="post-poster-link">
+            <img src="<%= post.posterUrl %>" alt="poster de <%= post.titulo %>" class="post-poster-thumb">
+          </a>
+        <% } %>
+
+        <div class="post-texto">
+          <div class="post-head" style="margin-top: 0.8rem">
+            <span class="tag"><%= post.categoria %></span>
+          </div>
+          <h2><a href="/posts/<%= post.id %>"><%= post.titulo %></a></h2>
+          <p class="conteudo-resumo"><%= post.conteudo.length > 220 ? post.conteudo.slice(0, 220) + '...' : post.conteudo %></p>
+          <a href="/posts/<%= post.id %>" class="btn btn-secondary">Ver e comentar</a>
+        </div>
+      </div>
+    </article>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>
