@@ -3,14 +3,21 @@
 // (input type="file") e salvar no disco.
 
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
+
+const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'avatars');
+
+// Garante que a pasta de uploads exista (o .gitignore ignora ela,
+// entao em clones novos ela nao vem junto e o multer falharia ao salvar).
+fs.mkdirSync(uploadDir, { recursive: true });
 
 // "diskStorage" = salva os arquivos no disco (em vez de manter na memoria).
 const storage = multer.diskStorage({
   // Pasta onde os arquivos serao salvos.
   destination: (req, file, cb) => {
     // cb = callback. O primeiro argumento e o erro (null = sem erro).
-    cb(null, path.join(__dirname, '..', 'public', 'uploads', 'avatars'));
+    cb(null, uploadDir);
   },
 
   // Nome do arquivo salvo. Evitamos usar o nome original (que pode conflitar
