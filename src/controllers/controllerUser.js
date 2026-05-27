@@ -1,10 +1,10 @@
 // Controller de usuarios: perfil publico de qualquer usuario, seguir e deixar de seguir.
 
-const { User, Post, Follow } = require('../models/associacoes');
+import { User, Post, Follow } from '../models/associacoes.js';
 
 // GET /usuarios/:id -> mostra o perfil publico de um usuario.
 // Qualquer pessoa logada pode ver o perfil de qualquer outra.
-exports.perfilPublico = async (req, res) => {
+export const perfilPublico = async (req, res) => {
   try {
     const usuarioPerfil = await User.findByPk(req.params.id, {
       attributes: ['id', 'nome', 'bio', 'avatarUrl', 'createdAt'],
@@ -65,7 +65,7 @@ exports.perfilPublico = async (req, res) => {
 };
 
 // POST /usuarios/:id/seguir -> comeca a seguir um usuario.
-exports.seguir = async (req, res) => {
+export const seguir = async (req, res) => {
   const followerId = req.session.usuario.id;
   const followingId = parseInt(req.params.id, 10);
 
@@ -91,7 +91,7 @@ exports.seguir = async (req, res) => {
 };
 
 // POST /usuarios/:id/parar-de-seguir -> para de seguir.
-exports.pararDeSeguir = async (req, res) => {
+export const pararDeSeguir = async (req, res) => {
   const followerId = req.session.usuario.id;
   const followingId = parseInt(req.params.id, 10);
 

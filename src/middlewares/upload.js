@@ -2,9 +2,15 @@
 // O multer e responsavel por receber arquivos enviados em formularios
 // (input type="file") e salvar no disco.
 
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import multer from 'multer';
+
+// Em ES Modules NAO existe __dirname automatico. Recriamos a partir do
+// import.meta.url (que e a URL do arquivo atual).
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'avatars');
 
@@ -50,4 +56,4 @@ const upload = multer({
   }
 });
 
-module.exports = upload;
+export default upload;

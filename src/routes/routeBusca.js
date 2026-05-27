@@ -1,9 +1,10 @@
 // Rota da busca (proxy do OMDb). Prefixo /api/buscar.
 
-const express = require('express');
+import express from 'express';
+import * as ctrl from '../controllers/controllerBusca.js';
+import { autenticado } from '../middlewares/auth.js';
+
 const router = express.Router();
-const ctrl = require('../controllers/controllerBusca');
-const { autenticado } = require('../middlewares/auth');
 
 // Exige login pra usar a busca (evita que bot scanee usando nossa chave).
 router.use(autenticado);
@@ -11,4 +12,4 @@ router.use(autenticado);
 // GET /api/buscar?q=matrix
 router.get('/', ctrl.buscar);
 
-module.exports = router;
+export default router;

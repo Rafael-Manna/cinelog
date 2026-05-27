@@ -3,8 +3,14 @@
 // (ex: "SELECT * FROM usuarios"), voce trabalha com objetos JavaScript
 // (ex: User.findAll()). O Sequelize traduz isso pra SQL por baixo dos panos.
 
-const path = require('path');
-const { Sequelize } = require('sequelize');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Sequelize } from 'sequelize';
+
+// Em ES Modules NAO existe __dirname/__filename automaticamente como no CommonJS.
+// A gente recria usando import.meta.url (URL do arquivo atual).
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Cria a "instancia" do Sequelize, que representa a conexao com o banco.
 const sequelize = new Sequelize({
@@ -23,4 +29,4 @@ const sequelize = new Sequelize({
 });
 
 // Exporta a conexao pra ser usada nos models e no index.js.
-module.exports = sequelize;
+export default sequelize;

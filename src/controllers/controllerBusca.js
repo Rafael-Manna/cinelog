@@ -16,7 +16,7 @@ function categoriaDoTipo(omdbType) {
 }
 
 // GET /api/buscar?q=matrix -> retorna uma lista de resultados em JSON.
-exports.buscar = async (req, res) => {
+export const buscar = async (req, res) => {
   const termo = (req.query.q || '').trim();
 
   // Se nao mandou nada ou muito curto, retorna lista vazia (sem chamar a API).

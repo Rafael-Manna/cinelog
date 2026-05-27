@@ -1,14 +1,14 @@
 // Controller das postagens (avaliacoes). Aqui mora o CRUD completo:
 // Create, Read, Update, Delete.
 
-const { Post, User, Comment } = require('../models/associacoes');
+import { Post, User, Comment } from '../models/associacoes.js';
 
 // Atributos do User que mostramos junto com os posts/comentarios.
 // Centralizamos aqui pra ficar consistente em todas as queries.
 const camposAutor = ['id', 'nome', 'avatarUrl'];
 
 // GET / -> lista todas as postagens (feed da home).
-exports.listar = async (req, res) => {
+export const listar = async (req, res) => {
   try {
     const filtroCategoria = req.query.categoria;
     const where = filtroCategoria ? { categoria: filtroCategoria } : {};
@@ -38,12 +38,12 @@ exports.listar = async (req, res) => {
 };
 
 // GET /posts/novo -> formulario pra criar avaliacao.
-exports.formNovo = (req, res) => {
+export const formNovo = (req, res) => {
   res.render('novaPostagem');
 };
 
 // POST /posts/novo -> salva a nova avaliacao no banco.
-exports.criar = async (req, res) => {
+export const criar = async (req, res) => {
   // posterUrl e imdbId chegam aqui se o usuario escolheu um titulo via autocomplete.
   // Sao opcionais: se digitou o titulo a mao, ficam null.
   const { titulo, categoria, nota, conteudo, posterUrl, imdbId } = req.body;
@@ -75,7 +75,7 @@ exports.criar = async (req, res) => {
 };
 
 // GET /posts/:id -> pagina de detalhe de uma postagem (com comentarios e respostas).
-exports.detalhe = async (req, res) => {
+export const detalhe = async (req, res) => {
   try {
     // Query complexa: trazer o post + autor + comentarios "raiz" (sem pai)
     // + para cada comentario, suas respostas + para cada um, o autor.
@@ -123,7 +123,7 @@ exports.detalhe = async (req, res) => {
 };
 
 // GET /posts/:id/editar -> formulario de edicao.
-exports.formEditar = async (req, res) => {
+export const formEditar = async (req, res) => {
   try {
     const post = await Post.findByPk(req.params.id);
     if (!post) {
@@ -146,7 +146,7 @@ exports.formEditar = async (req, res) => {
 };
 
 // POST /posts/:id/editar -> salva a edicao.
-exports.atualizar = async (req, res) => {
+export const atualizar = async (req, res) => {
   const { titulo, categoria, nota, conteudo, posterUrl, imdbId } = req.body;
   try {
     const post = await Post.findByPk(req.params.id);
@@ -182,7 +182,7 @@ exports.atualizar = async (req, res) => {
 };
 
 // POST /posts/:id/excluir -> deleta a postagem.
-exports.deletar = async (req, res) => {
+export const deletar = async (req, res) => {
   try {
     const post = await Post.findByPk(req.params.id);
     if (!post) {

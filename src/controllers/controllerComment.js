@@ -1,9 +1,9 @@
 // Controller dos comentarios feitos nas postagens.
 
-const { Comment, Post } = require('../models/associacoes');
+import { Comment, Post } from '../models/associacoes.js';
 
 // POST /comentarios/post/:postId -> cria um comentario em uma postagem.
-exports.criar = async (req, res) => {
+export const criar = async (req, res) => {
   const { conteudo } = req.body;
   const { postId } = req.params;
 
@@ -36,7 +36,7 @@ exports.criar = async (req, res) => {
 
 // POST /comentarios/:id/responder -> cria uma resposta a um comentario existente.
 // O :id aqui e o ID do comentario PAI (o que esta sendo respondido).
-exports.responder = async (req, res) => {
+export const responder = async (req, res) => {
   const { conteudo } = req.body;
   const parentId = req.params.id;
 
@@ -77,7 +77,7 @@ exports.responder = async (req, res) => {
 // POST /comentarios/:id/excluir -> apaga um comentario.
 // Por causa do CASCADE nas associacoes, se for um comentario raiz, suas
 // respostas tambem somem juntas.
-exports.deletar = async (req, res) => {
+export const deletar = async (req, res) => {
   try {
     const comment = await Comment.findByPk(req.params.id);
     if (!comment) {

@@ -3,7 +3,7 @@
 // (chamando next()) ou bloquear (retornando uma resposta ou redirect).
 
 // Verifica se tem algum usuario logado. Se nao tiver, joga pro /login.
-function autenticado(req, res, next) {
+export function autenticado(req, res, next) {
   if (!req.session.usuario) {
     // flash() guarda uma mensagem que vai aparecer UMA vez na proxima pagina.
     req.flash('error', 'Faca login para continuar.');
@@ -14,7 +14,7 @@ function autenticado(req, res, next) {
 }
 
 // Igual ao de cima, mas tambem exige que o usuario seja admin.
-function somenteAdmin(req, res, next) {
+export function somenteAdmin(req, res, next) {
   if (!req.session.usuario) {
     req.flash('error', 'Faca login para continuar.');
     return res.redirect('/login');
@@ -25,6 +25,3 @@ function somenteAdmin(req, res, next) {
   }
   next();
 }
-
-// Exporta os dois pra serem usados nas rotas.
-module.exports = { autenticado, somenteAdmin };

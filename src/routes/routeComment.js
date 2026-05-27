@@ -1,9 +1,10 @@
 // Rotas dos comentarios. Prefixo /comentarios.
 
-const express = require('express');
+import express from 'express';
+import * as ctrl from '../controllers/controllerComment.js';
+import { autenticado } from '../middlewares/auth.js';
+
 const router = express.Router();
-const ctrl = require('../controllers/controllerComment');
-const { autenticado } = require('../middlewares/auth');
 
 // POST /comentarios/post/:postId -> novo comentario raiz numa postagem.
 router.post('/post/:postId', autenticado, ctrl.criar);
@@ -14,4 +15,4 @@ router.post('/:id/responder', autenticado, ctrl.responder);
 // POST /comentarios/:id/excluir -> apaga um comentario.
 router.post('/:id/excluir', autenticado, ctrl.deletar);
 
-module.exports = router;
+export default router;

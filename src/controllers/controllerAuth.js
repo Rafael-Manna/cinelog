@@ -2,25 +2,30 @@
 // Controller = funcoes que recebem a requisicao, conversam com o banco
 // e devolvem uma resposta (renderiza view ou redireciona).
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // bcryptjs = biblioteca pra fazer HASH de senhas. Nunca guardamos senha em texto plano.
-const bcrypt = require('bcryptjs');
-const { User, Follow } = require('../models/associacoes');
+import bcrypt from 'bcryptjs';
+import { User, Follow } from '../models/associacoes.js';
+
+// Recriacao do __dirname pra ESM (precisamos pra apagar avatar antigo do disco).
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // GET /login -> mostra o formulario de login.
-exports.formLogin = (req, res) => {
+export const formLogin = (req, res) => {
   res.render('login');
 };
 
 // GET /registro -> mostra o formulario de cadastro.
-exports.formRegistro = (req, res) => {
+export const formRegistro = (req, res) => {
   res.render('registro');
 };
 
 // POST /registro -> processa o cadastro de um novo usuario.
-exports.registrar = async (req, res) => {
+export const registrar = async (req, res) => {
   const { nome, email, senha } = req.body;
 
   if (!nome || !email || !senha) {
@@ -48,7 +53,7 @@ exports.registrar = async (req, res) => {
 };
 
 // POST /login -> processa o login.
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, senha } = req.body;
 
   try {
@@ -84,14 +89,14 @@ exports.login = async (req, res) => {
 };
 
 // POST /logout -> destroi a sessao (desloga o usuario).
-exports.logout = (req, res) => {
+export const logout = (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login');
   });
 };
 
 // GET /perfil -> pagina de edicao do meu proprio perfil.
-exports.perfil = async (req, res) => {
+export const perfil = async (req, res) => {
   try {
     const user = await User.findByPk(req.session.usuario.id);
 
@@ -112,7 +117,7 @@ exports.perfil = async (req, res) => {
 };
 
 // POST /perfil -> salva alteracoes no perfil (nome e bio).
-exports.atualizarPerfil = async (req, res) => {
+export const atualizarPerfil = async (req, res) => {
   const { nome, bio } = req.body;
   try {
     const user = await User.findByPk(req.session.usuario.id);
@@ -134,7 +139,7 @@ exports.atualizarPerfil = async (req, res) => {
 // POST /perfil/avatar -> recebe o upload da foto de perfil.
 // O middleware do multer ja salvou o arquivo no disco antes dessa funcao rodar.
 // Os dados do arquivo ficam disponiveis em req.file.
-exports.uploadAvatar = async (req, res) => {
+export const uploadAvatar = async (req, res) => {
   try {
     // Se o multer rejeitou (nao e imagem, ou maior que 2MB), req.file vem vazio.
     if (!req.file) {
@@ -176,7 +181,7 @@ exports.uploadAvatar = async (req, res) => {
 };
 
 // POST /perfil/avatar/remover -> remove a foto de perfil atual.
-exports.removerAvatar = async (req, res) => {
+export const removerAvatar = async (req, res) => {
   try {
     const user = await User.findByPk(req.session.usuario.id);
 

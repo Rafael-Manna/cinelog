@@ -1,10 +1,11 @@
 // Rotas de usuarios (perfis publicos, seguir, deixar de seguir).
 // Prefixo /usuarios (definido no index.js).
 
-const express = require('express');
+import express from 'express';
+import * as ctrl from '../controllers/controllerUser.js';
+import { autenticado } from '../middlewares/auth.js';
+
 const router = express.Router();
-const ctrl = require('../controllers/controllerUser');
-const { autenticado } = require('../middlewares/auth');
 
 // Todas as rotas aqui exigem login.
 router.use(autenticado);
@@ -18,4 +19,4 @@ router.post('/:id/seguir', ctrl.seguir);
 // POST /usuarios/:id/parar-de-seguir -> deixar de seguir.
 router.post('/:id/parar-de-seguir', ctrl.pararDeSeguir);
 
-module.exports = router;
+export default router;

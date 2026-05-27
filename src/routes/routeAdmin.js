@@ -1,9 +1,10 @@
 // Rotas administrativas. Prefixo /admin (definido no index.js).
 
-const express = require('express');
+import express from 'express';
+import * as ctrl from '../controllers/controllerAdmin.js';
+import { somenteAdmin } from '../middlewares/auth.js';
+
 const router = express.Router();
-const ctrl = require('../controllers/controllerAdmin');
-const { somenteAdmin } = require('../middlewares/auth');
 
 // router.use(...) sem caminho aplica o middleware a TODAS as rotas desse router.
 // Aqui: nenhuma rota /admin/* roda sem passar pelo somenteAdmin.
@@ -22,4 +23,4 @@ router.post('/usuarios/:id/role', ctrl.alternarRole);
 // POST /admin/usuarios/:id/excluir -> apaga um usuario.
 router.post('/usuarios/:id/excluir', ctrl.deletarUsuario);
 
-module.exports = router;
+export default router;

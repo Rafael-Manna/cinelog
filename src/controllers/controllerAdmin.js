@@ -1,10 +1,10 @@
 // Controller da area administrativa. Todas as rotas que usam essas funcoes
 // estao protegidas pelo middleware somenteAdmin (ver routeAdmin.js).
 
-const { User, Post, Comment } = require('../models/associacoes');
+import { User, Post, Comment } from '../models/associacoes.js';
 
 // GET /admin -> painel com estatisticas gerais.
-exports.painel = async (req, res) => {
+export const painel = async (req, res) => {
   try {
     // count() retorna a quantidade de registros (SELECT COUNT(*)).
     // Executando tres counts separados aqui por simplicidade.
@@ -21,7 +21,7 @@ exports.painel = async (req, res) => {
 };
 
 // GET /admin/usuarios -> lista de todos os usuarios.
-exports.listarUsuarios = async (req, res) => {
+export const listarUsuarios = async (req, res) => {
   try {
     const usuarios = await User.findAll({
       // attributes limita o que vem do banco. NUNCA exponha o hash da senha.
@@ -37,7 +37,7 @@ exports.listarUsuarios = async (req, res) => {
 };
 
 // POST /admin/usuarios/:id/role -> alterna entre user e admin.
-exports.alternarRole = async (req, res) => {
+export const alternarRole = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) {
@@ -67,7 +67,7 @@ exports.alternarRole = async (req, res) => {
 // POST /admin/usuarios/:id/excluir -> apaga um usuario.
 // Como temos CASCADE nas associacoes, todos os posts e comentarios dele
 // somem junto automaticamente.
-exports.deletarUsuario = async (req, res) => {
+export const deletarUsuario = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) {

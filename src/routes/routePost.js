@@ -2,10 +2,11 @@
 // quando fazemos app.use('/posts', routePost)).
 // Ex: aqui escrevemos router.get('/novo') = URL final fica /posts/novo
 
-const express = require('express');
+import express from 'express';
+import * as ctrl from '../controllers/controllerPost.js';
+import { autenticado } from '../middlewares/auth.js';
+
 const router = express.Router();
-const ctrl = require('../controllers/controllerPost');
-const { autenticado } = require('../middlewares/auth');
 
 // /posts/novo -> formulario e envio de nova avaliacao.
 // IMPORTANTE: rota "/novo" tem que vir ANTES da rota "/:id". Senao o Express
@@ -24,4 +25,4 @@ router.post('/:id/editar', autenticado, ctrl.atualizar);
 // so suportam GET e POST de forma nativa.
 router.post('/:id/excluir', autenticado, ctrl.deletar);
 
-module.exports = router;
+export default router;

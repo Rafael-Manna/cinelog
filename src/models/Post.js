@@ -1,7 +1,7 @@
 // Model da tabela de postagens (as avaliacoes que o usuario escreve).
 
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/orm');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/orm.js';
 
 const Post = sequelize.define('Post', {
   // Chave primaria.
@@ -57,4 +57,4 @@ const Post = sequelize.define('Post', {
   timestamps: true
 });
 
-module.exports = Post;
+export default Post;

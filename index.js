@@ -1,43 +1,56 @@
 // Carrega as variaveis do arquivo .env e coloca elas dentro do process.env.
-// Precisa ser a primeira linha do arquivo, antes de qualquer outro require usar
-// process.env (ex: a porta e o segredo da sessao).
-require('dotenv').config();
+// Em ESM, "import 'dotenv/config'" e o equivalente de "require('dotenv').config()".
+// Tem que ser o PRIMEIRO import, antes de qualquer outro modulo usar process.env
+// (ex: a porta, o segredo da sessao, a chave do OMDb).
+import 'dotenv/config';
 
 // path -> modulo nativo do Node para montar caminhos de arquivo de forma
 // segura (cuida da diferenca entre Windows usar \ e Linux/Mac usar /).
-const path = require('path');
+import path from 'path';
+
+// Em ES Modules nao existe __dirname automatico. Recriamos usando import.meta.url.
+import { fileURLToPath } from 'url';
 
 // express -> o framework que cria o servidor web e gerencia rotas.
-const express = require('express');
+import express from 'express';
 
 // express-session -> guarda dados do usuario logado em uma sessao no servidor,
 // e manda um cookie pro navegador com o identificador dessa sessao.
-const session = require('express-session');
+import session from 'express-session';
 
 // connect-flash -> permite mostrar mensagens que aparecem UMA vez (ex: "Login feito!")
 // e somem na proxima pagina. Bom para feedback rapido.
-const flash = require('connect-flash');
+import flash from 'connect-flash';
+
+// bcrypt usado no seed do admin abaixo.
+import bcrypt from 'bcryptjs';
 
 // Importa a conexao com o banco (Sequelize + SQLite). Ver src/config/orm.js
-const sequelize = require('./src/config/orm');
+import sequelize from './src/config/orm.js';
 
-// Carrega os models. So o fato de "require" ja registra eles no Sequelize.
-require('./src/models/User');
-require('./src/models/Post');
-require('./src/models/Comment');
-require('./src/models/Follow');
+// Carrega os models. So o fato de importar ja registra eles no Sequelize.
+// Em ESM nao da pra fazer "side-effect import" com require(); usamos a forma "import './...'".
+import './src/models/User.js';
+import './src/models/Post.js';
+import './src/models/Comment.js';
+import './src/models/Follow.js';
 
 // Carrega as associacoes entre os models (User tem Posts, Post tem Comments, etc).
 // Tem que vir DEPOIS dos models acima.
-require('./src/models/associacoes');
+// Importamos User aqui tambem porque o seed precisa criar o admin inicial.
+import { User } from './src/models/associacoes.js';
 
 // Importa os arquivos que definem as rotas (URLs) da aplicacao.
-const routeAuth = require('./src/routes/routeAuth');
-const routePost = require('./src/routes/routePost');
-const routeComment = require('./src/routes/routeComment');
-const routeAdmin = require('./src/routes/routeAdmin');
-const routeUser = require('./src/routes/routeUser');
-const routeBusca = require('./src/routes/routeBusca');
+import routeAuth from './src/routes/routeAuth.js';
+import routePost from './src/routes/routePost.js';
+import routeComment from './src/routes/routeComment.js';
+import routeAdmin from './src/routes/routeAdmin.js';
+import routeUser from './src/routes/routeUser.js';
+import routeBusca from './src/routes/routeBusca.js';
+
+// __dirname recriado pra ESM.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Cria a instancia do app Express. E nesse objeto que registramos rotas,
 // middlewares, etc.
@@ -110,8 +123,6 @@ app.use((req, res) => {
 // Funcao que cria um usuario admin automaticamente se ainda nao existir nenhum.
 // Util pra voce poder logar como admin no primeiro start do projeto.
 async function seedAdmin() {
-  const bcrypt = require('bcryptjs');
-  const User = require('./src/models/User');
   const totalAdmins = await User.count({ where: { role: 'admin' } });
   if (totalAdmins === 0) {
     // bcrypt.hash transforma a senha em um hash (texto embaralhado).

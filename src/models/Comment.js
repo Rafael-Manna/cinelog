@@ -1,7 +1,7 @@
 // Model da tabela de comentarios feitos nas postagens.
 
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/orm');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/orm.js';
 
 const Comment = sequelize.define('Comment', {
   id: {
@@ -32,4 +32,4 @@ const Comment = sequelize.define('Comment', {
   timestamps: true
 });
 
-module.exports = Comment;
+export default Comment;

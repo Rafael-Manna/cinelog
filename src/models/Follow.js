@@ -2,8 +2,8 @@
 // E uma tabela intermediaria (de junção) entre User e User mesmo
 // (auto-relacionamento), porque um usuario segue varios e e seguido por varios.
 
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/orm');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/orm.js';
 
 const Follow = sequelize.define('Follow', {
   // Quem esta seguindo.
@@ -31,4 +31,4 @@ const Follow = sequelize.define('Follow', {
   ]
 });
 
-module.exports = Follow;
+export default Follow;

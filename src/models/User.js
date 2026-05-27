@@ -1,8 +1,8 @@
 // Model = representacao de uma tabela do banco no codigo.
 // Esse arquivo define como e a tabela de usuarios.
 
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/orm');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/orm.js';
 
 // sequelize.define(nome, colunas, opcoes) cria o model.
 const User = sequelize.define('User', {
@@ -65,4 +65,4 @@ const User = sequelize.define('User', {
   timestamps: true
 });
 
-module.exports = User;
+export default User;

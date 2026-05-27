@@ -2,10 +2,10 @@
 // relaciona com a outra. E aqui que o Sequelize cria as chaves estrangeiras
 // (foreign keys) automaticamente.
 
-const User = require('./User');
-const Post = require('./Post');
-const Comment = require('./Comment');
-const Follow = require('./Follow');
+import User from './User.js';
+import Post from './Post.js';
+import Comment from './Comment.js';
+import Follow from './Follow.js';
 
 // ===== User <-> Post (1-para-muitos) =====
 // Um usuario pode ter VARIAS postagens.
@@ -55,4 +55,4 @@ User.belongsToMany(User, {
 });
 
 // Exporta todos juntos pra ser pratico importar nos controllers.
-module.exports = { User, Post, Comment, Follow };
+export { User, Post, Comment, Follow };
