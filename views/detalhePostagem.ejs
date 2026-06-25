@@ -4,7 +4,7 @@
   <div class="post-autor">
     <%- include('partials/avatar', { user: post.User, tamanho: 'md' }) %>
     <div class="post-autor-info">
-      <a href="/usuarios/<%= post.User.id %>" class="autor-nome"><%= post.User.nome %></a>
+      <span class="autor-nome"><%= post.User.nome %></span>
       <span class="muted"><%= new Date(post.createdAt).toLocaleString('pt-BR') %></span>
     </div>
     <%- include('partials/estrelas', { nota: post.nota }) %>
@@ -21,10 +21,9 @@
       </div>
 
       <h1><%= post.titulo %></h1>
-
       <div class="conteudo"><%= post.conteudo %></div>
 
-      <% if (usuario && (usuario.id === post.User.id || usuario.role === 'admin')) { %>
+      <% if (usuario && usuario.id === post.User.id) { %>
         <div class="acoes">
           <a href="/posts/<%= post.id %>/editar" class="btn btn-secondary">Editar</a>
           <form action="/posts/<%= post.id %>/excluir" method="POST" class="inline-form" onsubmit="return confirm('Excluir publicacao?');">
@@ -39,12 +38,10 @@
 <section class="card">
   <h2>Comentarios (<%= post.Comments.length %>)</h2>
 
-  <% if (usuario) { %>
-    <form action="/comentarios/post/<%= post.id %>" method="POST" class="form-comentario">
-      <textarea name="conteudo" rows="3" placeholder="Escreva um comentario..." required></textarea>
-      <button type="submit" class="btn btn-primary">Comentar</button>
-    </form>
-  <% } %>
+  <form action="/comentarios/post/<%= post.id %>" method="POST" class="form-comentario">
+    <textarea name="conteudo" rows="3" placeholder="Escreva um comentario..." required></textarea>
+    <button type="submit" class="btn btn-primary">Comentar</button>
+  </form>
 
   <% if (!post.Comments.length) { %>
     <p class="muted">Sem comentarios ainda.</p>
@@ -52,51 +49,19 @@
 
   <ul class="comentarios">
     <% post.Comments.forEach(c => { %>
-      <li class="comentario" id="comentario-<%= c.id %>">
+      <li class="comentario">
         <%- include('partials/avatar', { user: c.User, tamanho: 'sm' }) %>
         <div class="comentario-corpo">
           <div class="comentario-head">
-            <a href="/usuarios/<%= c.User.id %>" class="autor-nome-sm"><%= c.User.nome %></a>
+            <span class="autor-nome-sm"><%= c.User.nome %></span>
             <span class="muted"><%= new Date(c.createdAt).toLocaleString('pt-BR') %></span>
           </div>
           <p><%= c.conteudo %></p>
 
-          <div class="comentario-acoes">
-            <button type="button" class="btn-link" onclick="document.getElementById('responder-<%= c.id %>').classList.toggle('hidden')">Responder</button>
-            <% if (usuario && (usuario.id === c.User.id || usuario.role === 'admin')) { %>
-              <form action="/comentarios/<%= c.id %>/excluir" method="POST" class="inline-form" onsubmit="return confirm('Excluir comentario?');">
-                <button type="submit" class="btn-link danger">excluir</button>
-              </form>
-            <% } %>
-          </div>
-
-          <form action="/comentarios/<%= c.id %>/responder" method="POST" id="responder-<%= c.id %>" class="form-resposta hidden">
-            <textarea name="conteudo" rows="2" placeholder="Sua resposta..." required></textarea>
-            <button type="submit" class="btn btn-primary">Responder</button>
-          </form>
-
-          <% if (c.Respostas && c.Respostas.length) { %>
-            <ul class="respostas">
-              <% c.Respostas.forEach(r => { %>
-                <li class="comentario resposta">
-                  <%- include('partials/avatar', { user: r.User, tamanho: 'sm' }) %>
-                  <div class="comentario-corpo">
-                    <div class="comentario-head">
-                      <a href="/usuarios/<%= r.User.id %>" class="autor-nome-sm"><%= r.User.nome %></a>
-                      <span class="muted"><%= new Date(r.createdAt).toLocaleString('pt-BR') %></span>
-                    </div>
-                    <p><%= r.conteudo %></p>
-                    <% if (usuario && (usuario.id === r.User.id || usuario.role === 'admin')) { %>
-                      <div class="comentario-acoes">
-                        <form action="/comentarios/<%= r.id %>/excluir" method="POST" class="inline-form" onsubmit="return confirm('Excluir resposta?');">
-                          <button type="submit" class="btn-link danger">excluir</button>
-                        </form>
-                      </div>
-                    <% } %>
-                  </div>
-                </li>
-              <% }) %>
-            </ul>
+          <% if (usuario && usuario.id === c.User.id) { %>
+            <form action="/comentarios/<%= c.id %>/excluir" method="POST" class="inline-form" onsubmit="return confirm('Excluir comentario?');">
+              <button type="submit" class="btn-link danger">excluir</button>
+            </form>
           <% } %>
         </div>
       </li>

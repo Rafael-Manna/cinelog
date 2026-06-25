@@ -1,28 +1,17 @@
-// Rotas das postagens. Todas comecam com /posts (prefixo definido no index.js
-// quando fazemos app.use('/posts', routePost)).
-// Ex: aqui escrevemos router.get('/novo') = URL final fica /posts/novo
-
 import express from 'express';
 import * as ctrl from '../controllers/controllerPost.js';
 import { autenticado } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// /posts/novo -> formulario e envio de nova avaliacao.
-// IMPORTANTE: rota "/novo" tem que vir ANTES da rota "/:id". Senao o Express
-// pensaria que "novo" e um ID e mandaria pra detalhe.
-router.get('/novo', autenticado, ctrl.formNovo);
-router.post('/novo', autenticado, ctrl.criar);
+router.use(autenticado);
 
-// /posts/:id -> ":id" e parametro dinamico. Ex: /posts/5 -> req.params.id === '5'
-router.get('/:id', autenticado, ctrl.detalhe);
+router.get('/novo', ctrl.formNovo);
+router.post('/novo', ctrl.criar);
 
-// /posts/:id/editar -> formulario e envio de edicao.
-router.get('/:id/editar', autenticado, ctrl.formEditar);
-router.post('/:id/editar', autenticado, ctrl.atualizar);
-
-// /posts/:id/excluir -> apaga. Usamos POST (nao DELETE) porque formularios HTML
-// so suportam GET e POST de forma nativa.
-router.post('/:id/excluir', autenticado, ctrl.deletar);
+router.get('/:id', ctrl.detalhe);
+router.get('/:id/editar', ctrl.formEditar);
+router.post('/:id/editar', ctrl.atualizar);
+router.post('/:id/excluir', ctrl.deletar);
 
 export default router;

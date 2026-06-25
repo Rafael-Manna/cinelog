@@ -5,16 +5,6 @@
   <a href="/posts/novo" class="btn btn-primary">+ Nova avaliacao</a>
 </header>
 
-<% if (categorias && categorias.length) { %>
-  <div class="filtros">
-    <span class="muted">Filtrar:</span>
-    <a href="/" class="<%= !categoriaAtual ? 'tag active' : 'tag' %>">todas</a>
-    <% categorias.forEach(c => { %>
-      <a href="/?categoria=<%= encodeURIComponent(c) %>" class="<%= categoriaAtual === c ? 'tag active' : 'tag' %>"><%= c %></a>
-    <% }) %>
-  </div>
-<% } %>
-
 <% if (!posts.length) { %>
   <p class="muted">Ainda nao ha publicacoes. <a href="/posts/novo">Seja o primeiro!</a></p>
 <% } %>
@@ -25,7 +15,7 @@
       <div class="post-autor">
         <%- include('partials/avatar', { user: post.User, tamanho: 'md' }) %>
         <div class="post-autor-info">
-          <a href="/usuarios/<%= post.User.id %>" class="autor-nome"><%= post.User.nome %></a>
+          <span class="autor-nome"><%= post.User.nome %></span>
           <span class="muted"><%= new Date(post.createdAt).toLocaleString('pt-BR') %></span>
         </div>
         <%- include('partials/estrelas', { nota: post.nota }) %>

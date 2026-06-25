@@ -5,18 +5,11 @@
     <%- include('partials/avatar', { user: user, tamanho: 'lg' }) %>
     <div>
       <h1><%= user.nome %></h1>
-      <p class="muted">Email: <%= user.email %> &middot; Papel: <strong><%= user.role %></strong></p>
-      <div class="perfil-stats">
-        <span><strong><%= totalSeguidores %></strong> seguidores</span>
-        <span><strong><%= totalSeguindo %></strong> seguindo</span>
-      </div>
+      <p class="muted">Email: <%= user.email %></p>
     </div>
   </div>
 </div>
 
-<%# Formulario de upload da foto de perfil.
-    O enctype="multipart/form-data" e OBRIGATORIO em formularios com arquivo.
-    Sem isso, o multer nao consegue ler o arquivo. %>
 <div class="card">
   <h2>Foto de perfil</h2>
   <form action="/perfil/avatar" method="POST" enctype="multipart/form-data">
@@ -24,13 +17,7 @@
       <input type="file" name="avatar" accept="image/*" required>
     </label>
     <button type="submit" class="btn btn-primary">Salvar foto</button>
-    <% if (user.avatarUrl) { %>
-      <button type="submit" form="form-remover-avatar" class="btn btn-danger">Remover foto atual</button>
-    <% } %>
   </form>
-  <% if (user.avatarUrl) { %>
-    <form id="form-remover-avatar" action="/perfil/avatar/remover" method="POST"></form>
-  <% } %>
 </div>
 
 <div class="card">
