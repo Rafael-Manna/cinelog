@@ -53,13 +53,14 @@
       <input type="hidden" name="imdbId" id="imdbId">
     <% } %>
 
-    <label>Nota (1 a 5)
+    <label>Nota (0 a 10)
       <select name="nota" required>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected>4</option>
-        <option value="5">5</option>
+        <% for (let n = 10; n >= 0; n--) { %>
+          <option value="<%= n %>" <%= n === 8 ? 'selected' : '' %>>
+            <%= n %>/10 &mdash; <%= (n / 2).toLocaleString('pt-BR') %>
+            <%= n === 2 ? 'estrela' : 'estrelas' %>
+          </option>
+        <% } %>
       </select>
     </label>
 

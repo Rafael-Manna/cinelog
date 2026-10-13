@@ -848,3 +848,11 @@ img, video { max-width: 100%; }
   .item-lista-acoes .inline-form { display: block; }
   .item-lista-acoes .btn { width: 100%; }
 }
+
+/* numero ao lado das estrelas: discreto, quem lidera a leitura sao as estrelas */
+.nota-numero {
+  color: #8a95a0;
+  font-size: 0.78rem;
+  margin-left: 0.3rem;
+  letter-spacing: 0;
+}

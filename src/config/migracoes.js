@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, QueryTypes } from 'sequelize';
 
 /*
   O sequelize.sync() cria tabelas novas, mas nao adiciona coluna em tabela que
@@ -37,9 +37,32 @@ const colunas = [
 ];
 
 /*
-  Idempotente: so adiciona o que estiver faltando, entao pode rodar a cada boot.
+  Mudancas de DADOS (nao de schema). Diferente das colunas, aqui nao da para
+  olhar o banco e saber se ja rodou — por isso cada passo e registrado na tabela
+  'migracoes' e nunca roda duas vezes.
+
+  Nunca edite nem remova um passo ja publicado: o banco de producao pode ja
+  te-lo aplicado. Para corrigir algo, acrescente um passo novo.
+*/
+const passos = [
+  ['nota-escala-10', async (sequelize) => {
+    // A nota era de 1 a 5 e passou a ser de 0 a 10 (para permitir meia estrela).
+    // As postagens antigas precisam dobrar para continuar valendo o mesmo.
+    await sequelize.query('UPDATE postagens SET nota = nota * 2');
+  }]
+];
+
+async function garantirTabelaDeControle(queryInterface) {
+  await queryInterface.createTable('migracoes', {
+    nome: { type: DataTypes.STRING, primaryKey: true },
+    aplicada_em: { type: DataTypes.DATE, allowNull: false }
+  });
+}
+
+/*
+  Idempotente: so aplica o que estiver faltando, entao pode rodar a cada boot.
   Roda depois do sync(), que e quem cria as tabelas novas.
-  Devolve a lista do que foi efetivamente adicionado.
+  Devolve a lista do que foi efetivamente aplicado.
 */
 export async function aplicarMigracoes(sequelize) {
   const queryInterface = sequelize.getQueryInterface();
@@ -51,6 +74,25 @@ export async function aplicarMigracoes(sequelize) {
 
     await queryInterface.addColumn(tabela, coluna, definicao);
     aplicadas.push(`${tabela}.${coluna}`);
+  }
+
+  await garantirTabelaDeControle(queryInterface);
+
+  const registradas = await sequelize.query(
+    'SELECT nome FROM migracoes',
+    { type: QueryTypes.SELECT }
+  );
+  const jaRodou = new Set(registradas.map(r => r.nome));
+
+  for (const [nome, executar] of passos) {
+    if (jaRodou.has(nome)) continue;
+
+    await executar(sequelize);
+    await sequelize.query(
+      'INSERT INTO migracoes (nome, aplicada_em) VALUES (?, ?)',
+      { replacements: [nome, new Date()] }
+    );
+    aplicadas.push(`passo ${nome}`);
   }
 
   return aplicadas;

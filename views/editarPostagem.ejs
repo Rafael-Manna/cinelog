@@ -9,10 +9,13 @@
     <label>Categoria
       <input type="text" name="categoria" value="<%= post.categoria %>" required>
     </label>
-    <label>Nota
+    <label>Nota (0 a 10)
       <select name="nota" required>
-        <% for (let i = 1; i <= 5; i++) { %>
-          <option value="<%= i %>" <%= post.nota === i ? 'selected' : '' %>><%= i %></option>
+        <% for (let n = 10; n >= 0; n--) { %>
+          <option value="<%= n %>" <%= post.nota === n ? 'selected' : '' %>>
+            <%= n %>/10 &mdash; <%= (n / 2).toLocaleString('pt-BR') %>
+            <%= n === 2 ? 'estrela' : 'estrelas' %>
+          </option>
         <% } %>
       </select>
     </label>

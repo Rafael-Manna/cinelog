@@ -1,5 +1,13 @@
-<span class="nota">
-  <% for (let i = 1; i <= 5; i++) { %>
-    <i class="<%= i <= nota ? 'fa-solid' : 'fa-regular' %> fa-star"></i>
+<%
+  // nota vai de 0 a 10; cada estrela vale 2, entao nota impar vira meia estrela
+  const n = Math.max(0, Math.min(10, Number(nota) || 0));
+%>
+<span class="nota" title="<%= n %> de 10">
+  <% for (let i = 1; i <= 5; i++) {
+       const cheia = n >= i * 2;
+       const meia = !cheia && n >= i * 2 - 1;
+  %>
+    <i class="<%= cheia ? 'fa-solid fa-star' : (meia ? 'fa-solid fa-star-half-stroke' : 'fa-regular fa-star') %>"></i>
   <% } %>
+  <span class="nota-numero"><%= n %>/10</span>
 </span>

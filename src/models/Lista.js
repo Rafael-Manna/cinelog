@@ -7,7 +7,10 @@ const Lista = sequelize.define('Lista', {
   descricao: { type: DataTypes.TEXT, allowNull: true }
 }, {
   tableName: 'listas',
-  timestamps: true
+  timestamps: true,
+  // Sem isto o Sequelize "singulariza" Lista para Listum (trata como plural
+  // latino, tipo datum/data) e os includes chegam em item.Listum, nao item.Lista.
+  name: { singular: 'Lista', plural: 'Listas' }
 });
 
 export default Lista;
