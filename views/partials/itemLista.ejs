@@ -1,6 +1,6 @@
 <article class="item-lista">
   <% if (item.dados.posterUrl) { %>
-    <img src="<%= item.dados.posterUrl %>" alt="poster de <%= item.dados.titulo %>" class="post-poster-thumb-sm">
+    <img src="<%= item.dados.posterUrl %>" alt="poster de <%= item.dados.titulo %>" class="post-poster-thumb-sm" onerror="this.style.display='none'">
   <% } %>
 
   <div class="item-lista-info">
@@ -19,6 +19,14 @@
 
     <h3><%= item.dados.titulo %><% if (item.dados.ano) { %> <span class="muted">(<%= item.dados.ano %>)</span><% } %></h3>
     <p class="muted">Indicado por <%= item.dados.Indicou ? item.dados.Indicou.nome : 'alguem' %></p>
+
+    <% if (item.dados.assistidoEm) { %>
+      <p class="muted assistido-selo">
+        <i class="fa-solid fa-eye"></i>
+        Assistido em <%= new Date(item.dados.assistidoEm).toLocaleDateString('pt-BR') %><%
+          if (item.dados.MarcouAssistido) { %>, marcado por <%= item.dados.MarcouAssistido.nome %><% } %>
+      </p>
+    <% } %>
 
     <div class="votos">
       <span class="voto-grupo voto-sim">
@@ -66,5 +74,41 @@
         </form>
       <% } %>
     </div>
+
+    <% if (item.dados.status === 'aprovado') { %>
+      <div class="item-lista-acoes">
+        <form action="/listas/itens/<%= item.dados.id %>/assistido" method="POST" class="inline-form">
+          <button type="submit" class="btn <%= item.dados.assistidoEm ? 'btn-secondary' : 'btn-primary' %>">
+            <i class="fa-solid fa-eye"></i>
+            <%= item.dados.assistidoEm ? 'Desmarcar assistido' : 'Ja assistimos' %>
+          </button>
+        </form>
+
+        <% if (item.dados.assistidoEm) { %>
+          <% if (item.dados.Analise) { %>
+            <% if (item.minhaParte) { %>
+              <a href="/posts/<%= item.minhaParte.id %>" class="btn btn-secondary">
+                <i class="fa-solid fa-people-group"></i> Ver minha parte
+              </a>
+              <span class="muted">
+                <%= item.dados.Analise.Posts.length %> de <%= membros.length %> ja escreveram
+              </span>
+            <% } else { %>
+              <form action="/listas/itens/<%= item.dados.id %>/avaliar-junto" method="POST" class="inline-form">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-people-group"></i> Escrever minha parte
+                </button>
+              </form>
+            <% } %>
+          <% } else { %>
+            <form action="/listas/itens/<%= item.dados.id %>/avaliar-junto" method="POST" class="inline-form">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-people-group"></i> Avaliar junto
+              </button>
+            </form>
+          <% } %>
+        <% } %>
+      </div>
+    <% } %>
   </div>
 </article>

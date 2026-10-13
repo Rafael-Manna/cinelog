@@ -1,21 +1,100 @@
-import { Post, User, Comment } from '../models/associacoes.js';
+import { Post, User, Comment, Analise, Lista, ListaMembro } from '../models/associacoes.js';
 
 export const listar = async (req, res) => {
   const posts = await Post.findAll({
-    include: [{ model: User, attributes: ['id', 'nome', 'avatarUrl'] }],
+    include: [
+      { model: User, attributes: ['id', 'nome', 'avatarUrl'] },
+      { model: Analise, include: [{ model: Lista, attributes: ['id', 'nome'] }] }
+    ],
     order: [['createdAt', 'DESC']]
   });
-  res.render('index', { posts });
+
+  // Postagens da mesma analise viram um card so, exibidas lado a lado.
+  // O grupo ocupa no feed a posicao da postagem mais recente dele.
+  const grupos = [];
+  const porAnalise = new Map();
+
+  for (const post of posts) {
+    if (!post.analiseId || !post.Analise) {
+      grupos.push({ tipo: 'post', post });
+      continue;
+    }
+    let grupo = porAnalise.get(post.analiseId);
+    if (!grupo) {
+      grupo = { tipo: 'analise', analise: post.Analise, posts: [] };
+      porAnalise.set(post.analiseId, grupo);
+      grupos.push(grupo);
+    }
+    grupo.posts.push(post);
+  }
+
+  // para saber se ainda falta alguem da lista escrever a parte dele
+  for (const grupo of grupos) {
+    if (grupo.tipo !== 'analise') continue;
+    grupo.totalMembros = await ListaMembro.count({ where: { listaId: grupo.analise.listaId } });
+  }
+
+  res.render('index', { grupos });
 };
 
-export const formNovo = (req, res) => res.render('novaPostagem');
+export const formNovo = async (req, res) => {
+  const analise = req.query.analise
+    ? await Analise.findByPk(req.query.analise)
+    : null;
+
+  if (analise) {
+    const membro = await ListaMembro.findOne({
+      where: { listaId: analise.listaId, userId: req.session.usuario.id }
+    });
+    if (!membro) {
+      req.flash('error', 'Voce nao participa da lista dessa analise.');
+      return res.redirect('/');
+    }
+    const jaEscreveu = await Post.findOne({
+      where: { analiseId: analise.id, userId: req.session.usuario.id }
+    });
+    if (jaEscreveu) {
+      req.flash('error', 'Voce ja escreveu a sua parte dessa analise.');
+      return res.redirect(`/posts/${jaEscreveu.id}`);
+    }
+  }
+
+  res.render('novaPostagem', { analise });
+};
 
 export const criar = async (req, res) => {
-  const { titulo, categoria, nota, conteudo, posterUrl, imdbId } = req.body;
+  const { titulo, categoria, nota, conteudo, posterUrl, imdbId, analiseId } = req.body;
+  const voltarPara = analiseId ? `/posts/novo?analise=${analiseId}` : '/posts/novo';
+
   if (!titulo || !categoria || !nota || !conteudo) {
     req.flash('error', 'Preencha todos os campos.');
-    return res.redirect('/posts/novo');
+    return res.redirect(voltarPara);
   }
+
+  // So membro da lista escreve na analise, e so uma vez
+  let analise = null;
+  if (analiseId) {
+    analise = await Analise.findByPk(analiseId);
+    if (!analise) {
+      req.flash('error', 'Analise nao encontrada.');
+      return res.redirect('/');
+    }
+    const membro = await ListaMembro.findOne({
+      where: { listaId: analise.listaId, userId: req.session.usuario.id }
+    });
+    if (!membro) {
+      req.flash('error', 'Voce nao participa da lista dessa analise.');
+      return res.redirect('/');
+    }
+    const jaEscreveu = await Post.findOne({
+      where: { analiseId: analise.id, userId: req.session.usuario.id }
+    });
+    if (jaEscreveu) {
+      req.flash('error', 'Voce ja escreveu a sua parte dessa analise.');
+      return res.redirect(`/posts/${jaEscreveu.id}`);
+    }
+  }
+
   await Post.create({
     titulo,
     categoria: categoria.trim().toLowerCase(),
@@ -23,9 +102,13 @@ export const criar = async (req, res) => {
     conteudo,
     posterUrl: posterUrl?.trim() || null,
     imdbId: imdbId?.trim() || null,
-    userId: req.session.usuario.id
+    userId: req.session.usuario.id,
+    analiseId: analise ? analise.id : null
   });
-  req.flash('success', 'Publicacao criada.');
+
+  req.flash('success', analise
+    ? 'Sua parte da analise foi publicada.'
+    : 'Publicacao criada.');
   res.redirect('/');
 };
 

@@ -5,39 +5,92 @@
   <a href="/posts/novo" class="btn btn-primary">+ Nova avaliacao</a>
 </header>
 
-<% if (!posts.length) { %>
+<% if (!grupos.length) { %>
   <p class="muted">Ainda nao ha publicacoes. <a href="/posts/novo">Seja o primeiro!</a></p>
 <% } %>
 
 <div class="post-list">
-  <% posts.forEach(post => { %>
-    <article class="card post-card">
-      <div class="post-autor">
-        <%- include('partials/avatar', { user: post.User, tamanho: 'md' }) %>
-        <div class="post-autor-info">
-          <span class="autor-nome"><%= post.User.nome %></span>
-          <span class="muted"><%= new Date(post.createdAt).toLocaleString('pt-BR') %></span>
+  <% grupos.forEach(grupo => { %>
+    <% if (grupo.tipo === 'analise') { %>
+
+      <article class="card analise-card">
+        <div class="analise-head">
+          <span class="tag tag-analise"><i class="fa-solid fa-people-group"></i> analise em conjunto</span>
+          <a href="/listas/<%= grupo.analise.listaId %>" class="muted"><%= grupo.analise.Lista ? grupo.analise.Lista.nome : 'lista' %></a>
         </div>
-        <%- include('partials/estrelas', { nota: post.nota }) %>
-      </div>
 
-      <div class="post-corpo">
-        <% if (post.posterUrl) { %>
-          <a href="/posts/<%= post.id %>" class="post-poster-link">
-            <img src="<%= post.posterUrl %>" alt="poster de <%= post.titulo %>" class="post-poster-thumb">
-          </a>
-        <% } %>
-
-        <div class="post-texto">
-          <div class="post-head" style="margin-top: 0.8rem">
-            <span class="tag"><%= post.categoria %></span>
+        <div class="analise-topo">
+          <% if (grupo.analise.posterUrl) { %>
+            <img src="<%= grupo.analise.posterUrl %>" alt="poster de <%= grupo.analise.titulo %>" class="post-poster-thumb" onerror="this.style.display='none'">
+          <% } %>
+          <div>
+            <h2><%= grupo.analise.titulo %><% if (grupo.analise.ano) { %> <span class="muted">(<%= grupo.analise.ano %>)</span><% } %></h2>
+            <span class="tag"><%= grupo.analise.categoria %></span>
           </div>
-          <h2><a href="/posts/<%= post.id %>"><%= post.titulo %></a></h2>
-          <p class="conteudo-resumo"><%= post.conteudo.length > 220 ? post.conteudo.slice(0, 220) + '...' : post.conteudo %></p>
-          <a href="/posts/<%= post.id %>" class="btn btn-secondary">Ver e comentar</a>
         </div>
-      </div>
-    </article>
+
+        <div class="analise-colunas">
+          <% grupo.posts.forEach(post => { %>
+            <div class="analise-coluna">
+              <div class="post-autor">
+                <%- include('partials/avatar', { user: post.User, tamanho: 'sm' }) %>
+                <div class="post-autor-info">
+                  <span class="autor-nome"><%= post.User.nome %></span>
+                  <span class="muted"><%= new Date(post.createdAt).toLocaleDateString('pt-BR') %></span>
+                </div>
+              </div>
+              <%- include('partials/estrelas', { nota: post.nota }) %>
+              <p class="conteudo-resumo"><%= post.conteudo.length > 300 ? post.conteudo.slice(0, 300) + '...' : post.conteudo %></p>
+              <a href="/posts/<%= post.id %>" class="btn-link">ver e comentar</a>
+            </div>
+          <% }) %>
+
+          <% if (grupo.posts.length < grupo.totalMembros) { %>
+            <div class="analise-coluna analise-vazia">
+              <p class="muted">
+                <i class="fa-regular fa-hourglass"></i>
+                Aguardando <%= grupo.totalMembros - grupo.posts.length %>
+                <%= grupo.totalMembros - grupo.posts.length === 1 ? 'membro' : 'membros' %> escrever.
+              </p>
+              <% if (usuario && !grupo.posts.some(p => p.userId === usuario.id)) { %>
+                <a href="/posts/novo?analise=<%= grupo.analise.id %>" class="btn btn-primary">Escrever a minha</a>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      </article>
+
+    <% } else { %>
+
+      <article class="card post-card">
+        <div class="post-autor">
+          <%- include('partials/avatar', { user: grupo.post.User, tamanho: 'md' }) %>
+          <div class="post-autor-info">
+            <span class="autor-nome"><%= grupo.post.User.nome %></span>
+            <span class="muted"><%= new Date(grupo.post.createdAt).toLocaleString('pt-BR') %></span>
+          </div>
+          <%- include('partials/estrelas', { nota: grupo.post.nota }) %>
+        </div>
+
+        <div class="post-corpo">
+          <% if (grupo.post.posterUrl) { %>
+            <a href="/posts/<%= grupo.post.id %>" class="post-poster-link">
+              <img src="<%= grupo.post.posterUrl %>" alt="poster de <%= grupo.post.titulo %>" class="post-poster-thumb" onerror="this.style.display='none'">
+            </a>
+          <% } %>
+
+          <div class="post-texto">
+            <div class="post-head" style="margin-top: 0.8rem">
+              <span class="tag"><%= grupo.post.categoria %></span>
+            </div>
+            <h2><a href="/posts/<%= grupo.post.id %>"><%= grupo.post.titulo %></a></h2>
+            <p class="conteudo-resumo"><%= grupo.post.conteudo.length > 220 ? grupo.post.conteudo.slice(0, 220) + '...' : grupo.post.conteudo %></p>
+            <a href="/posts/<%= grupo.post.id %>" class="btn btn-secondary">Ver e comentar</a>
+          </div>
+        </div>
+      </article>
+
+    <% } %>
   <% }) %>
 </div>
 

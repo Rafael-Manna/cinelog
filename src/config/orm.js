@@ -9,6 +9,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Sem ela, continua o SQLite local de desenvolvimento.
 const urlPostgres = process.env.DATABASE_URL;
 
+// Em producao, cair no SQLite silenciosamente e pior do que nao subir: o disco
+// do host e efemero e os dados sumiriam no proximo restart, sem aviso nenhum.
+if (process.env.NODE_ENV === 'production' && !urlPostgres) {
+  console.error(
+    'DATABASE_URL nao definida. Em producao o banco precisa ser Postgres, ' +
+    'senao os dados se perdem a cada restart. Configure a variavel e suba de novo.'
+  );
+  process.exit(1);
+}
+
 let sequelize;
 
 if (urlPostgres) {

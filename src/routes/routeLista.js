@@ -13,6 +13,8 @@ router.get('/nova', ctrl.formNova);
 router.post('/nova', wrap(ctrl.criar));
 
 router.post('/itens/:itemId/votar', wrap(ctrl.votar));
+router.post('/itens/:itemId/assistido', wrap(ctrl.marcarAssistido));
+router.post('/itens/:itemId/avaliar-junto', wrap(ctrl.avaliarJunto));
 router.post('/itens/:itemId/excluir', wrap(ctrl.removerItem));
 
 router.get('/:id', wrap(ctrl.detalhe));

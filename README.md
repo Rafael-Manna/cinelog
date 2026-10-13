@@ -29,6 +29,11 @@ Projeto pessoal de estudo: autenticacao com sessao, CRUD completo, sistema de se
 - Listas em conjunto (mashup): voce cria a lista, convida amigos pelo email da conta
   e cada filme indicado so entra quando **todos os membros concordam** (um "nao quero"
   de qualquer membro veta o item ate a pessoa mudar o voto)
+- Marcar titulos da lista como **ja assistidos** — como a lista assiste junto
+  (presencial ou em call), um membro marcar vale para todos, e o item ganha
+  secao propria
+- **Analise em conjunto**: depois de assistir, cada membro escreve a avaliacao
+  dele do mesmo titulo, e as duas aparecem **lado a lado** num card unico do feed
 - Painel administrativo (estatisticas, gerenciamento de usuarios)
 
 ## Estrutura
@@ -170,7 +175,15 @@ O que esperar do plano gratuito:
 
 A pasta `src/database/` e o arquivo `bd.sqlite` sao criados sozinhos no primeiro start (o SQLite nao cria o diretorio do arquivo, entao quem cria e o `src/config/orm.js`). As foreign keys tambem sao ligadas por conexao ali, com `PRAGMA foreign_keys = ON` — sem isso o `onDelete: CASCADE` dos models e ignorado.
 
-O projeto usa `sequelize.sync()` simples (nao `alter:true`) porque o `alter:true` briga com SQLite + foreign keys. Quando voce **alterar a estrutura de algum model** (adicionar coluna, mudar tipo, etc), apague o banco e deixe ser recriado:
+O `sequelize.sync()` cria tabelas novas, mas **nao adiciona coluna em tabela que ja existe**. Por isso, ao mexer em model, rode a migracao — ela e idempotente e so mexe no que estiver faltando:
+
+```bash
+node scripts/migrar.mjs
+```
+
+Em producao, descomente a `DATABASE_URL` no `.env` e rode o mesmo comando. Pode rodar com a versao antiga no ar: a migracao so adiciona tabela e coluna, nao altera o que o codigo atual ja usa. **Rode a migracao antes de subir o codigo novo**, senao o deploy quebra com "column does not exist".
+
+Alternativa destrutiva (so em desenvolvimento), apagando o banco e deixando recriar:
 
 ```bash
 # Windows (PowerShell):

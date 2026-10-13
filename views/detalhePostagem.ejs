@@ -12,7 +12,7 @@
 
   <div class="post-detalhe-corpo">
     <% if (post.posterUrl) { %>
-      <img src="<%= post.posterUrl %>" alt="poster de <%= post.titulo %>" class="post-poster-hero">
+      <img src="<%= post.posterUrl %>" alt="poster de <%= post.titulo %>" class="post-poster-hero" onerror="this.style.display='none'">
     <% } %>
 
     <div class="post-detalhe-texto">

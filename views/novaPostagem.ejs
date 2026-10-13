@@ -1,36 +1,57 @@
-<%- include('partials/header', { titulo: 'Nova avaliacao' }) %>
+<%- include('partials/header', { titulo: analise ? 'Avaliar junto' : 'Nova avaliacao' }) %>
 
 <div class="card">
-  <h1>Nova avaliacao</h1>
+  <% if (analise) { %>
+    <h1>Avaliar junto</h1>
+    <div class="analise-aviso">
+      <% if (analise.posterUrl) { %>
+        <img src="<%= analise.posterUrl %>" alt="poster de <%= analise.titulo %>">
+      <% } %>
+      <div>
+        <strong><%= analise.titulo %><% if (analise.ano) { %> (<%= analise.ano %>)<% } %></strong>
+        <span class="muted">Esta e a sua parte da analise. A avaliacao de cada membro aparece lado a lado no feed.</span>
+      </div>
+    </div>
+  <% } else { %>
+    <h1>Nova avaliacao</h1>
+  <% } %>
 
   <form action="/posts/novo" method="POST">
-    <label>Buscar filme ou serie
-      <div class="autocomplete-wrapper">
-        <input type="text" id="busca" placeholder="Digite o nome (ex: Matrix, Breaking Bad)..." autocomplete="off">
-        <ul id="resultados" class="autocomplete-resultados hidden"></ul>
+    <% if (analise) { %>
+      <input type="hidden" name="analiseId" value="<%= analise.id %>">
+      <input type="hidden" name="titulo" value="<%= analise.titulo %>">
+      <input type="hidden" name="categoria" value="<%= analise.categoria %>">
+      <input type="hidden" name="posterUrl" value="<%= analise.posterUrl || '' %>">
+      <input type="hidden" name="imdbId" value="<%= analise.imdbId || '' %>">
+    <% } else { %>
+      <label>Buscar filme ou serie
+        <div class="autocomplete-wrapper">
+          <input type="text" id="busca" placeholder="Digite o nome (ex: Matrix, Breaking Bad)..." autocomplete="off">
+          <ul id="resultados" class="autocomplete-resultados hidden"></ul>
+        </div>
+        <small class="muted">Escolha da lista para preencher automaticamente, ou digite um titulo manualmente abaixo.</small>
+      </label>
+
+      <div id="preview" class="preview-escolha hidden">
+        <img id="preview-poster" src="" alt="poster">
+        <div>
+          <strong id="preview-titulo"></strong>
+          <span class="muted" id="preview-ano"></span>
+        </div>
+        <button type="button" class="btn-link danger" onclick="limparEscolha()">remover escolha</button>
       </div>
-      <small class="muted">Escolha da lista para preencher automaticamente, ou digite um titulo manualmente abaixo.</small>
-    </label>
 
-    <div id="preview" class="preview-escolha hidden">
-      <img id="preview-poster" src="" alt="poster">
-      <div>
-        <strong id="preview-titulo"></strong>
-        <span class="muted" id="preview-ano"></span>
-      </div>
-      <button type="button" class="btn-link danger" onclick="limparEscolha()">remover escolha</button>
-    </div>
+      <label>Titulo
+        <input type="text" name="titulo" id="titulo" required>
+      </label>
 
-    <label>Titulo
-      <input type="text" name="titulo" id="titulo" required>
-    </label>
+      <label>Categoria (filme, serie, livro, etc)
+        <input type="text" name="categoria" id="categoria" required>
+      </label>
 
-    <label>Categoria (filme, serie, livro, etc)
-      <input type="text" name="categoria" id="categoria" required>
-    </label>
-
-    <input type="hidden" name="posterUrl" id="posterUrl">
-    <input type="hidden" name="imdbId" id="imdbId">
+      <input type="hidden" name="posterUrl" id="posterUrl">
+      <input type="hidden" name="imdbId" id="imdbId">
+    <% } %>
 
     <label>Nota (1 a 5)
       <select name="nota" required>
@@ -42,15 +63,16 @@
       </select>
     </label>
 
-    <label>Sua avaliacao
+    <label><%= analise ? 'O que voce achou' : 'Sua avaliacao' %>
       <textarea name="conteudo" rows="6" required></textarea>
     </label>
 
-    <button type="submit" class="btn btn-primary">Publicar</button>
-    <a href="/" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary"><%= analise ? 'Publicar minha parte' : 'Publicar' %></button>
+    <a href="<%= analise ? '/listas/' + analise.listaId : '/' %>" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>
 
+<% if (!analise) { %>
 <script>
   const inputBusca = document.getElementById('busca');
   const listaResultados = document.getElementById('resultados');
@@ -161,5 +183,6 @@
     }
   });
 </script>
+<% } %>
 
 <%- include('partials/footer') %>

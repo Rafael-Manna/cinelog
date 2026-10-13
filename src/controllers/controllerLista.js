@@ -1,4 +1,4 @@
-import { User, Lista, ListaMembro, ListaItem, ItemVoto } from '../models/associacoes.js';
+import { User, Post, Lista, ListaMembro, ListaItem, ItemVoto, Analise } from '../models/associacoes.js';
 
 // Carrega a lista apenas se o usuario logado for membro dela.
 // Devolve { lista, membro } ou null quando nao existe / nao participa.
@@ -109,6 +109,8 @@ export const detalhe = async (req, res) => {
     where: { listaId: lista.id },
     include: [
       { model: User, as: 'Indicou', attributes: ['id', 'nome', 'avatarUrl'] },
+      { model: User, as: 'MarcouAssistido', attributes: ['id', 'nome', 'avatarUrl'] },
+      { model: Analise, include: [{ model: Post, attributes: ['id', 'userId'] }] },
       { model: ItemVoto, include: [{ model: User, attributes: ['id', 'nome', 'avatarUrl'] }] }
     ],
     order: [['createdAt', 'DESC']]
@@ -123,15 +125,21 @@ export const detalhe = async (req, res) => {
       nao: votos.filter(v => v.voto === 'nao'),
       meuVoto: votos.find(v => v.userId === usuarioId)?.voto || null,
       faltam: membros.filter(m => !jaVotaram.has(m.userId)).map(m => m.User),
-      podeRemover: item.addedById === usuarioId || membro.papel === 'dono'
+      podeRemover: item.addedById === usuarioId || membro.papel === 'dono',
+      // ja escrevi a minha parte da analise conjunta desse item?
+      minhaParte: item.Analise?.Posts?.find(p => p.userId === usuarioId) || null
     };
   });
+
+  const aprovados = itens.filter(i => i.dados.status === 'aprovado');
 
   res.render('detalheLista', {
     lista,
     souDono: membro.papel === 'dono',
     membros,
-    aprovados: itens.filter(i => i.dados.status === 'aprovado'),
+    // aprovado e ainda nao assistido fica na fila; assistido ganha secao propria
+    aprovados: aprovados.filter(i => !i.dados.assistidoEm),
+    assistidos: aprovados.filter(i => i.dados.assistidoEm),
     pendentes: itens.filter(i => i.dados.status === 'pendente'),
     rejeitados: itens.filter(i => i.dados.status === 'rejeitado')
   });
@@ -309,6 +317,72 @@ export const votar = async (req, res) => {
   }
 
   res.redirect(`/listas/${item.listaId}`);
+};
+
+// A lista assiste junto, entao um membro marcar vale para todos.
+export const marcarAssistido = async (req, res) => {
+  const usuarioId = req.session.usuario.id;
+  const item = await ListaItem.findByPk(req.params.itemId);
+  if (!item) {
+    req.flash('error', 'Item nao encontrado.');
+    return res.redirect('/listas');
+  }
+
+  const ctx = await carregarComoMembro(item.listaId, usuarioId);
+  if (!ctx) {
+    req.flash('error', 'Voce nao participa dessa lista.');
+    return res.redirect('/listas');
+  }
+  if (item.status !== 'aprovado') {
+    req.flash('error', 'So da para marcar como assistido o que ja entrou na lista.');
+    return res.redirect(`/listas/${item.listaId}`);
+  }
+
+  const desmarcando = !!item.assistidoEm;
+  item.assistidoEm = desmarcando ? null : new Date();
+  item.assistidoPorId = desmarcando ? null : usuarioId;
+  await item.save();
+
+  req.flash('success', desmarcando
+    ? `"${item.titulo}" voltou para a fila.`
+    : `"${item.titulo}" marcado como assistido — agora voces podem avaliar juntos.`);
+  res.redirect(`/listas/${item.listaId}`);
+};
+
+// Abre (ou reaproveita) a analise conjunta de um item assistido e manda o
+// membro escrever a parte dele.
+export const avaliarJunto = async (req, res) => {
+  const usuarioId = req.session.usuario.id;
+  const item = await ListaItem.findByPk(req.params.itemId, { include: [{ model: Analise }] });
+  if (!item) {
+    req.flash('error', 'Item nao encontrado.');
+    return res.redirect('/listas');
+  }
+
+  const ctx = await carregarComoMembro(item.listaId, usuarioId);
+  if (!ctx) {
+    req.flash('error', 'Voce nao participa dessa lista.');
+    return res.redirect('/listas');
+  }
+  if (!item.assistidoEm) {
+    req.flash('error', 'Marque como assistido antes de avaliar.');
+    return res.redirect(`/listas/${item.listaId}`);
+  }
+
+  let analise = item.Analise;
+  if (!analise) {
+    analise = await Analise.create({
+      listaId: item.listaId,
+      listaItemId: item.id,
+      titulo: item.titulo,
+      categoria: item.categoria,
+      ano: item.ano,
+      posterUrl: item.posterUrl,
+      imdbId: item.imdbId
+    });
+  }
+
+  res.redirect(`/posts/novo?analise=${analise.id}`);
 };
 
 export const removerItem = async (req, res) => {

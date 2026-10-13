@@ -5,6 +5,7 @@ import Lista from './Lista.js';
 import ListaMembro from './ListaMembro.js';
 import ListaItem from './ListaItem.js';
 import ItemVoto from './ItemVoto.js';
+import Analise from './Analise.js';
 
 User.hasMany(Post, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Post.belongsTo(User, { foreignKey: 'userId' });
@@ -55,4 +56,21 @@ ItemVoto.belongsTo(ListaItem, { foreignKey: 'itemId' });
 User.hasMany(ItemVoto, { foreignKey: 'userId', onDelete: 'CASCADE' });
 ItemVoto.belongsTo(User, { foreignKey: 'userId' });
 
-export { User, Post, Comment, Lista, ListaMembro, ListaItem, ItemVoto };
+// quem marcou o item como assistido (vale para a lista toda)
+User.hasMany(ListaItem, { as: 'ItensMarcados', foreignKey: 'assistidoPorId', onDelete: 'SET NULL' });
+ListaItem.belongsTo(User, { as: 'MarcouAssistido', foreignKey: 'assistidoPorId' });
+
+// ===== ANALISE EM CONJUNTO =====
+
+// a analise nasce de um item ja assistido e pertence aquela lista
+Lista.hasMany(Analise, { foreignKey: 'listaId', onDelete: 'CASCADE' });
+Analise.belongsTo(Lista, { foreignKey: 'listaId' });
+
+ListaItem.hasOne(Analise, { foreignKey: 'listaItemId', onDelete: 'SET NULL' });
+Analise.belongsTo(ListaItem, { foreignKey: 'listaItemId' });
+
+// cada membro escreve a sua postagem; as da mesma analise aparecem lado a lado
+Analise.hasMany(Post, { foreignKey: 'analiseId', onDelete: 'SET NULL' });
+Post.belongsTo(Analise, { foreignKey: 'analiseId' });
+
+export { User, Post, Comment, Lista, ListaMembro, ListaItem, ItemVoto, Analise };

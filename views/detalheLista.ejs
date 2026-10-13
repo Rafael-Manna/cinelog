@@ -111,6 +111,18 @@
 </section>
 
 <section class="card">
+  <h2>Ja assistidos (<%= assistidos.length %>)</h2>
+  <% if (!assistidos.length) { %>
+    <p class="muted">Nada assistido ainda. Depois de ver um titulo da lista, marque aqui para liberar a avaliacao em conjunto.</p>
+  <% } %>
+  <div class="itens-lista">
+    <% assistidos.forEach(item => { %>
+      <%- include('partials/itemLista', { item: item }) %>
+    <% }) %>
+  </div>
+</section>
+
+<section class="card">
   <h2>Em votacao (<%= pendentes.length %>)</h2>
   <% if (!pendentes.length) { %>
     <p class="muted">Nenhuma indicacao esperando voto.</p>

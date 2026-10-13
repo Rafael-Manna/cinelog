@@ -7,6 +7,7 @@ import connectPgSimple from 'connect-pg-simple';
 import flash from 'connect-flash';
 
 import sequelize from './src/config/orm.js';
+import { aplicarMigracoes } from './src/config/migracoes.js';
 import './src/models/User.js';
 import './src/models/Post.js';
 import './src/models/Comment.js';
@@ -14,6 +15,7 @@ import './src/models/Lista.js';
 import './src/models/ListaMembro.js';
 import './src/models/ListaItem.js';
 import './src/models/ItemVoto.js';
+import './src/models/Analise.js';
 import './src/models/associacoes.js';
 
 import routeAuth from './src/routes/routeAuth.js';
@@ -92,8 +94,19 @@ app.use((err, req, res, next) => {
   res.status(500).render('erro', { mensagem: 'Algo deu errado. Tente de novo.' });
 });
 
+// sync() cria tabelas novas; aplicarMigracoes() adiciona as colunas que
+// faltarem nas que ja existem. As duas sao idempotentes, entao rodar a cada
+// boot deixa o deploy sem passo manual. Se qualquer uma falhar, o app nao sobe:
+// e melhor nao subir do que atender com o banco em estado errado.
 sequelize.sync()
-  .then(() => app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-  }))
-  .catch(err => console.error('Erro ao sincronizar o banco:', err));
+  .then(() => aplicarMigracoes(sequelize))
+  .then((aplicadas) => {
+    if (aplicadas.length) console.log('Migracoes aplicadas:', aplicadas.join(', '));
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando em http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Erro ao preparar o banco:', err);
+    process.exit(1);
+  });

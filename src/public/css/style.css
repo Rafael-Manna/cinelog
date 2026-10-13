@@ -1,3 +1,10 @@
+:root {
+  /* Tema roxo. Trocar aqui muda o site inteiro. */
+  --roxo: #7c3aed;        /* preenchimento solido, com texto branco por cima */
+  --roxo-hover: #6d28d9;
+  --roxo-claro: #c084fc;  /* texto, icone e borda sobre o fundo escuro */
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -8,7 +15,7 @@ body {
   min-height: 100vh;
 }
 
-a { color: #00c030; text-decoration: none; }
+a { color: var(--roxo-claro); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .navbar {
@@ -41,7 +48,7 @@ a:hover { text-decoration: underline; }
 .logo:hover { text-decoration: none; }
 
 .logo-icon {
-  color: #00c030;
+  color: var(--roxo-claro);
   font-size: 1.5rem;
   transform: rotate(-10deg);
   transition: transform 0.2s;
@@ -120,7 +127,7 @@ input[type="file"] {
 
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: #00c030;
+  border-color: var(--roxo-claro);
 }
 
 textarea { resize: vertical; }
@@ -137,8 +144,8 @@ textarea { resize: vertical; }
   margin-right: 0.5rem;
 }
 
-.btn-primary { background: #00c030; color: #14181c; font-weight: 600; }
-.btn-primary:hover { background: #00a028; text-decoration: none; }
+.btn-primary { background: var(--roxo); color: #fff; font-weight: 600; }
+.btn-primary:hover { background: var(--roxo-hover); text-decoration: none; }
 
 .btn-secondary { background: #2c333a; color: #e0e6ed; }
 .btn-secondary:hover { background: #3a434c; text-decoration: none; }
@@ -165,7 +172,7 @@ textarea { resize: vertical; }
   border-radius: 4px;
   margin-bottom: 1rem;
 }
-.flash-success { background: #1d4023; color: #8eecb0; border: 1px solid #2d6238; }
+.flash-success { background: #2a1a40; color: #ddb8ff; border: 1px solid #4c2a85; }
 .flash-error { background: #4b1f1f; color: #ff9b9b; border: 1px solid #6e2d2d; }
 
 .muted { color: #8a95a0; font-size: 0.9rem; }
@@ -229,7 +236,7 @@ img.avatar { display: inline-block; }
   font-weight: 600;
   font-size: 0.95rem;
 }
-.autor-nome:hover { color: #00c030; text-decoration: none; }
+.autor-nome:hover { color: var(--roxo-claro); text-decoration: none; }
 
 .autor-nome-sm {
   color: #fff;
@@ -254,7 +261,7 @@ img.avatar { display: inline-block; }
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.tag.active { background: #00c030; color: #14181c; }
+.tag.active { background: var(--roxo); color: #fff; }
 .tag-admin { background: #ffb84d; color: #14181c; }
 
 .nota {
@@ -275,7 +282,7 @@ img.avatar { display: inline-block; }
 }
 
 .post-card h2 a { color: #fff; }
-.post-card h2 a:hover { color: #00c030; text-decoration: none; }
+.post-card h2 a:hover { color: var(--roxo-claro); text-decoration: none; }
 
 .conteudo-resumo {
   margin: 0.8rem 0;
@@ -389,7 +396,7 @@ img.avatar { display: inline-block; }
   border-radius: 6px;
 }
 .post-card-mini h3 a { color: #fff; }
-.post-card-mini h3 a:hover { color: #00c030; text-decoration: none; }
+.post-card-mini h3 a:hover { color: var(--roxo-claro); text-decoration: none; }
 
 /* ===== STATS (admin) ===== */
 
@@ -409,7 +416,7 @@ img.avatar { display: inline-block; }
   display: block;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #00c030;
+  color: var(--roxo-claro);
 }
 
 .tabela {
@@ -584,7 +591,7 @@ img.avatar { display: inline-block; }
   padding: 0.8rem;
   margin-bottom: 1rem;
   background: #14181c;
-  border: 1px solid #00c030;
+  border: 1px solid var(--roxo);
   border-radius: 6px;
 }
 
@@ -659,7 +666,7 @@ small.muted {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.status-aprovado { color: #00c030; }
+.status-aprovado { color: var(--roxo-claro); }
 .status-rejeitado { color: #ff6b6b; }
 .status-pendente { color: #ffb84d; }
 
@@ -677,5 +684,167 @@ small.muted {
   gap: 0.3rem;
   font-size: 0.9rem;
 }
-.voto-sim { color: #00c030; }
+.voto-sim { color: var(--roxo-claro); }
 .voto-nao { color: #ff6b6b; }
+
+/* ===== ASSISTIDO / ANALISE EM CONJUNTO ===== */
+
+.assistido-selo { color: var(--roxo-claro); margin-top: 0.3rem; }
+
+.tag-analise { background: var(--roxo); color: #fff; font-weight: 600; }
+
+.analise-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.analise-topo {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #2c333a;
+}
+
+.analise-topo h2 { margin-bottom: 0.4rem; }
+
+.analise-colunas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.analise-coluna {
+  background: #14181c;
+  border: 1px solid #2c333a;
+  border-radius: 6px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.analise-coluna .conteudo-resumo { margin: 0.2rem 0; }
+
+.analise-vazia {
+  border-style: dashed;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.analise-aviso {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.8rem;
+  margin-bottom: 1.2rem;
+  background: #14181c;
+  border: 1px solid var(--roxo);
+  border-radius: 6px;
+}
+
+.analise-aviso img {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.analise-aviso > div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== RESPONSIVO ===== */
+
+/* nenhum conteudo deve empurrar a largura da tela */
+img, video { max-width: 100%; }
+.conteudo, .conteudo-resumo, h1, h2, h3 { overflow-wrap: break-word; }
+
+@media (max-width: 640px) {
+  .container {
+    margin: 1.2rem auto;
+    padding: 0 1rem;
+  }
+
+  /* a navbar nao cabe numa linha so: logo em cima, links embaixo */
+  .nav-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0 1rem;
+  }
+
+  .nav-links {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1rem;
+  }
+
+  .nav-links a, .nav-links .btn-link { font-size: 0.9rem; }
+
+  /* o avatar ja identifica quem esta logado; o nome ocupa espaco demais aqui.
+     O :not(.avatar) importa: sem foto, o proprio avatar e um <span>. */
+  .nav-user span:not(.avatar) { display: none; }
+
+  .logo { font-size: 1.2rem; }
+  .logo-icon { font-size: 1.3rem; }
+
+  h1 { font-size: 1.45rem; }
+  h2 { font-size: 1.15rem; }
+
+  .card { padding: 1.1rem; }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .page-header .btn { margin-right: 0; }
+
+  /* poster grande ao lado do texto nao cabe: empilha */
+  .post-detalhe-corpo { flex-direction: column; }
+
+  .post-poster-hero {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+
+  .post-poster-thumb { width: 72px; height: 108px; }
+
+  .perfil-topo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .analise-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .item-lista { padding: 0.8rem; }
+
+  /* botoes de acao em coluna evitam a fileira apertada e o clique errado */
+  .item-lista-acoes { gap: 0.4rem; }
+  .item-lista-acoes .btn { margin-right: 0; }
+
+  .membro { flex-wrap: wrap; }
+
+  .tabela { display: block; overflow-x: auto; }
+}
+
+/* telas bem estreitas: botoes ocupando a linha inteira sao mais faceis de acertar */
+@media (max-width: 400px) {
+  .item-lista-acoes { flex-direction: column; align-items: stretch; }
+  .item-lista-acoes .inline-form { display: block; }
+  .item-lista-acoes .btn { width: 100%; }
+}
