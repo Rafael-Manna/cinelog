@@ -1,0 +1,20 @@
+# Blueprint do Render: em vez de preencher o formulario na mao, aponte o Render
+# para o repositorio e ele le este arquivo.
+# DATABASE_URL e OMDB_API_KEY ficam como sync: false — voce cola os valores no
+# painel, para nao versionar segredo no git.
+services:
+  - type: web
+    name: cinelog
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: OMDB_API_KEY
+        sync: false

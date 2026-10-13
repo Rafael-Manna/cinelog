@@ -1,0 +1,24 @@
+<%- include('partials/header', { titulo: 'Nova lista' }) %>
+
+<div class="card">
+  <h1>Nova lista em conjunto</h1>
+  <p class="muted" style="margin-bottom: 1.2rem">
+    Depois de criar, voce convida seus amigos pelo email da conta deles.
+    Cada filme indicado so entra na lista quando todos os membros concordam.
+  </p>
+
+  <form action="/listas/nova" method="POST">
+    <label>Nome da lista
+      <input type="text" name="nome" placeholder="Ex: Maratona de terror com o Joao" required>
+    </label>
+
+    <label>Descricao (opcional)
+      <textarea name="descricao" rows="3" placeholder="Do que e essa lista?"></textarea>
+    </label>
+
+    <button type="submit" class="btn btn-primary">Criar lista</button>
+    <a href="/listas" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+
+<%- include('partials/footer') %>

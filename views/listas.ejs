@@ -1,0 +1,40 @@
+<%- include('partials/header', { titulo: 'Minhas listas' }) %>
+
+<header class="page-header">
+  <h1>Listas em conjunto</h1>
+  <a href="/listas/nova" class="btn btn-primary">+ Nova lista</a>
+</header>
+
+<% if (!listas.length) { %>
+  <p class="muted">
+    Voce ainda nao participa de nenhuma lista.
+    <a href="/listas/nova">Crie a primeira</a> e chame um amigo para montar junto.
+  </p>
+<% } %>
+
+<div class="post-list">
+  <% listas.forEach(({ lista, papel, membros, aprovados, pendentes }) => { %>
+    <article class="card post-card">
+      <div class="post-head">
+        <span class="tag <%= papel === 'dono' ? 'active' : '' %>"><%= papel %></span>
+        <span class="muted"><%= membros %> <%= membros === 1 ? 'membro' : 'membros' %></span>
+      </div>
+
+      <h2><a href="/listas/<%= lista.id %>"><%= lista.nome %></a></h2>
+
+      <% if (lista.descricao) { %>
+        <p class="conteudo-resumo"><%= lista.descricao %></p>
+      <% } %>
+
+      <p class="muted">
+        Criada por <%= lista.Dono ? lista.Dono.nome : 'desconhecido' %>
+        &middot; <%= aprovados %> na lista
+        &middot; <%= pendentes %> em votacao
+      </p>
+
+      <a href="/listas/<%= lista.id %>" class="btn btn-secondary">Abrir lista</a>
+    </article>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

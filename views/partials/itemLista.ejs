@@ -1,0 +1,70 @@
+<article class="item-lista">
+  <% if (item.dados.posterUrl) { %>
+    <img src="<%= item.dados.posterUrl %>" alt="poster de <%= item.dados.titulo %>" class="post-poster-thumb-sm">
+  <% } %>
+
+  <div class="item-lista-info">
+    <div class="post-head">
+      <span class="tag"><%= item.dados.categoria %></span>
+      <span class="status status-<%= item.dados.status %>">
+        <% if (item.dados.status === 'aprovado') { %>
+          <i class="fa-solid fa-circle-check"></i> aprovado por todos
+        <% } else if (item.dados.status === 'rejeitado') { %>
+          <i class="fa-solid fa-circle-xmark"></i> vetado
+        <% } else { %>
+          <i class="fa-solid fa-hourglass-half"></i> em votacao
+        <% } %>
+      </span>
+    </div>
+
+    <h3><%= item.dados.titulo %><% if (item.dados.ano) { %> <span class="muted">(<%= item.dados.ano %>)</span><% } %></h3>
+    <p class="muted">Indicado por <%= item.dados.Indicou ? item.dados.Indicou.nome : 'alguem' %></p>
+
+    <div class="votos">
+      <span class="voto-grupo voto-sim">
+        <i class="fa-solid fa-thumbs-up"></i> <%= item.sim.length %>
+        <% item.sim.forEach(v => { %>
+          <%- include('avatar', { user: v.User, tamanho: 'sm' }) %>
+        <% }) %>
+      </span>
+
+      <span class="voto-grupo voto-nao">
+        <i class="fa-solid fa-thumbs-down"></i> <%= item.nao.length %>
+        <% item.nao.forEach(v => { %>
+          <%- include('avatar', { user: v.User, tamanho: 'sm' }) %>
+        <% }) %>
+      </span>
+
+      <% if (item.faltam.length) { %>
+        <span class="muted">falta: <%= item.faltam.map(u => u.nome).join(', ') %></span>
+      <% } %>
+    </div>
+
+    <div class="item-lista-acoes">
+      <form action="/listas/itens/<%= item.dados.id %>/votar" method="POST" class="inline-form">
+        <input type="hidden" name="voto" value="sim">
+        <button type="submit" class="btn <%= item.meuVoto === 'sim' ? 'btn-primary' : 'btn-secondary' %>">
+          <i class="fa-solid fa-thumbs-up"></i> Concordo
+        </button>
+      </form>
+
+      <form action="/listas/itens/<%= item.dados.id %>/votar" method="POST" class="inline-form">
+        <input type="hidden" name="voto" value="nao">
+        <button type="submit" class="btn <%= item.meuVoto === 'nao' ? 'btn-danger' : 'btn-secondary' %>">
+          <i class="fa-solid fa-thumbs-down"></i> Nao quero
+        </button>
+      </form>
+
+      <% if (item.meuVoto) { %>
+        <span class="muted">seu voto: <%= item.meuVoto === 'sim' ? 'concordo' : 'nao quero' %></span>
+      <% } %>
+
+      <% if (item.podeRemover) { %>
+        <form action="/listas/itens/<%= item.dados.id %>/excluir" method="POST" class="inline-form"
+              onsubmit="return confirm('Remover esse item da lista?');">
+          <button type="submit" class="btn-link danger">remover</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,251 @@
+<%- include('partials/header', { titulo: lista.nome }) %>
+
+<div class="card">
+  <div class="post-head">
+    <span class="tag <%= souDono ? 'active' : '' %>"><%= souDono ? 'voce e o dono' : 'membro' %></span>
+    <a href="/listas" class="muted">voltar para minhas listas</a>
+  </div>
+
+  <h1><%= lista.nome %></h1>
+  <% if (lista.descricao) { %>
+    <p class="conteudo-resumo"><%= lista.descricao %></p>
+  <% } %>
+  <p class="muted">
+    Um item entra na lista quando todos os <%= membros.length %>
+    <%= membros.length === 1 ? 'membro' : 'membros' %> concordam.
+  </p>
+
+  <div class="acoes">
+    <% if (souDono) { %>
+      <form action="/listas/<%= lista.id %>/excluir" method="POST" class="inline-form"
+            onsubmit="return confirm('Excluir a lista e todos os itens?');">
+        <button type="submit" class="btn btn-danger">Excluir lista</button>
+      </form>
+    <% } else { %>
+      <form action="/listas/<%= lista.id %>/sair" method="POST" class="inline-form"
+            onsubmit="return confirm('Sair dessa lista?');">
+        <button type="submit" class="btn btn-secondary">Sair da lista</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<section class="card">
+  <h2>Membros (<%= membros.length %>)</h2>
+
+  <ul class="membros">
+    <% membros.forEach(m => { %>
+      <li class="membro">
+        <%- include('partials/avatar', { user: m.User, tamanho: 'sm' }) %>
+        <span class="autor-nome-sm"><%= m.User.nome %></span>
+        <% if (m.papel === 'dono') { %><span class="tag">dono</span><% } %>
+        <% if (m.userId === usuario.id) { %><span class="muted">(voce)</span><% } %>
+
+        <% if (souDono && m.papel !== 'dono') { %>
+          <form action="/listas/<%= lista.id %>/membros/<%= m.userId %>/remover" method="POST" class="inline-form"
+                onsubmit="return confirm('Remover esse membro da lista?');">
+            <button type="submit" class="btn-link danger">remover</button>
+          </form>
+        <% } %>
+      </li>
+    <% }) %>
+  </ul>
+
+  <% if (souDono) { %>
+    <form action="/listas/<%= lista.id %>/membros" method="POST" class="form-membro">
+      <label>Convidar pelo email da conta
+        <input type="email" name="email" placeholder="email@do.amigo" required>
+      </label>
+      <button type="submit" class="btn btn-primary">Adicionar na lista</button>
+    </form>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Indicar um filme ou serie</h2>
+
+  <form action="/listas/<%= lista.id %>/itens" method="POST">
+    <label>Buscar titulo
+      <div class="autocomplete-wrapper">
+        <input type="text" id="busca" placeholder="Digite o nome (ex: Matrix, Breaking Bad)..." autocomplete="off">
+        <ul id="resultados" class="autocomplete-resultados hidden"></ul>
+      </div>
+      <small class="muted">Escolha da lista para preencher automaticamente, ou digite manualmente abaixo.</small>
+    </label>
+
+    <div id="preview" class="preview-escolha hidden">
+      <img id="preview-poster" src="" alt="poster">
+      <div>
+        <strong id="preview-titulo"></strong>
+        <span class="muted" id="preview-ano"></span>
+      </div>
+      <button type="button" class="btn-link danger" onclick="limparEscolha()">remover escolha</button>
+    </div>
+
+    <label>Titulo
+      <input type="text" name="titulo" id="titulo" required>
+    </label>
+
+    <label>Categoria (filme, serie, livro, etc)
+      <input type="text" name="categoria" id="categoria" required>
+    </label>
+
+    <input type="hidden" name="ano" id="ano">
+    <input type="hidden" name="posterUrl" id="posterUrl">
+    <input type="hidden" name="imdbId" id="imdbId">
+
+    <button type="submit" class="btn btn-primary">Indicar para a lista</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Na lista (<%= aprovados.length %>)</h2>
+  <% if (!aprovados.length) { %>
+    <p class="muted">Nada aprovado por todos ainda.</p>
+  <% } %>
+  <div class="itens-lista">
+    <% aprovados.forEach(item => { %>
+      <%- include('partials/itemLista', { item: item }) %>
+    <% }) %>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Em votacao (<%= pendentes.length %>)</h2>
+  <% if (!pendentes.length) { %>
+    <p class="muted">Nenhuma indicacao esperando voto.</p>
+  <% } %>
+  <div class="itens-lista">
+    <% pendentes.forEach(item => { %>
+      <%- include('partials/itemLista', { item: item }) %>
+    <% }) %>
+  </div>
+</section>
+
+<% if (rejeitados.length) { %>
+  <section class="card">
+    <h2>Vetados (<%= rejeitados.length %>)</h2>
+    <p class="muted">Alguem marcou "nao quero". Se a pessoa mudar o voto, o item volta.</p>
+    <div class="itens-lista">
+      <% rejeitados.forEach(item => { %>
+        <%- include('partials/itemLista', { item: item }) %>
+      <% }) %>
+    </div>
+  </section>
+<% } %>
+
+<script>
+  const inputBusca = document.getElementById('busca');
+  const listaResultados = document.getElementById('resultados');
+  const preview = document.getElementById('preview');
+  const previewPoster = document.getElementById('preview-poster');
+  const previewTitulo = document.getElementById('preview-titulo');
+  const previewAno = document.getElementById('preview-ano');
+  const inputTitulo = document.getElementById('titulo');
+  const inputCategoria = document.getElementById('categoria');
+  const inputAno = document.getElementById('ano');
+  const inputPosterUrl = document.getElementById('posterUrl');
+  const inputImdbId = document.getElementById('imdbId');
+
+  let timeoutId = null;
+
+  inputBusca.addEventListener('input', () => {
+    const termo = inputBusca.value.trim();
+    clearTimeout(timeoutId);
+
+    if (termo.length < 2) {
+      listaResultados.classList.add('hidden');
+      return;
+    }
+
+    timeoutId = setTimeout(() => buscar(termo), 300);
+  });
+
+  async function buscar(termo) {
+    try {
+      const resposta = await fetch(`/api/buscar?q=${encodeURIComponent(termo)}`);
+      const dados = await resposta.json();
+      mostrarResultados(dados.resultados || []);
+    } catch (err) {
+      console.error('Erro na busca:', err);
+    }
+  }
+
+  function mostrarResultados(itens) {
+    listaResultados.innerHTML = '';
+
+    if (!itens.length) {
+      listaResultados.classList.add('hidden');
+      return;
+    }
+
+    itens.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'autocomplete-item';
+
+      const img = document.createElement('img');
+      img.src = item.posterUrl || '/css/no-poster.png';
+      img.alt = '';
+      img.onerror = () => { img.style.display = 'none'; };
+
+      const info = document.createElement('div');
+      info.className = 'autocomplete-info';
+
+      const tituloEl = document.createElement('strong');
+      tituloEl.textContent = item.titulo;
+
+      const metaEl = document.createElement('span');
+      metaEl.className = 'muted';
+      metaEl.textContent = `${item.ano} - ${item.categoria}`;
+
+      info.appendChild(tituloEl);
+      info.appendChild(metaEl);
+      li.appendChild(img);
+      li.appendChild(info);
+
+      li.addEventListener('click', () => escolher(item));
+
+      listaResultados.appendChild(li);
+    });
+
+    listaResultados.classList.remove('hidden');
+  }
+
+  function escolher(item) {
+    inputTitulo.value = item.titulo;
+    inputCategoria.value = item.categoria;
+    inputAno.value = item.ano || '';
+    inputPosterUrl.value = item.posterUrl || '';
+    inputImdbId.value = item.imdbId || '';
+
+    if (item.posterUrl) {
+      previewPoster.src = item.posterUrl;
+      previewPoster.style.display = 'block';
+    } else {
+      previewPoster.style.display = 'none';
+    }
+    previewTitulo.textContent = item.titulo;
+    previewAno.textContent = ` (${item.ano})`;
+    preview.classList.remove('hidden');
+
+    listaResultados.classList.add('hidden');
+    inputBusca.value = '';
+  }
+
+  function limparEscolha() {
+    inputTitulo.value = '';
+    inputCategoria.value = '';
+    inputAno.value = '';
+    inputPosterUrl.value = '';
+    inputImdbId.value = '';
+    preview.classList.add('hidden');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.autocomplete-wrapper')) {
+      listaResultados.classList.add('hidden');
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

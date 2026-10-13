@@ -7,7 +7,7 @@ Projeto pessoal de estudo: autenticacao com sessao, CRUD completo, sistema de se
 ## Stack
 
 - **Backend:** Node.js + Express 4
-- **Banco:** SQLite via Sequelize 6 (ORM)
+- **Banco:** Sequelize 6 (ORM) — SQLite no desenvolvimento, Postgres em producao (decidido pela `DATABASE_URL`)
 - **Views:** EJS (com partials reusaveis)
 - **Auth:** express-session + bcryptjs
 - **Upload:** multer (avatares)
@@ -26,6 +26,9 @@ Projeto pessoal de estudo: autenticacao com sessao, CRUD completo, sistema de se
 - Autocomplete de filmes/series via OMDb, com poster automatico
 - Comentarios em qualquer publicacao
 - Respostas a comentarios (1 nivel, estilo Instagram)
+- Listas em conjunto (mashup): voce cria a lista, convida amigos pelo email da conta
+  e cada filme indicado so entra quando **todos os membros concordam** (um "nao quero"
+  de qualquer membro veta o item ate a pessoa mudar o voto)
 - Painel administrativo (estatisticas, gerenciamento de usuarios)
 
 ## Estrutura
@@ -37,7 +40,8 @@ letterbox-app/
 │   ├── controllers/                # logica de cada feature
 │   ├── database/bd.sqlite          # banco (gerado no 1o start, no .gitignore)
 │   ├── middlewares/                # autenticacao e upload
-│   ├── models/                     # tabelas (User, Post, Comment, Follow)
+│   ├── models/                     # tabelas (User, Post, Comment, Lista,
+│   │                               #   ListaMembro, ListaItem, ItemVoto)
 │   ├── public/                     # css e uploads/
 │   └── routes/                     # URLs da aplicacao
 ├── views/                          # templates EJS
@@ -130,9 +134,41 @@ Na primeira execucao, um admin e criado automaticamente:
 
 Troque a senha (ou crie outra conta admin) antes de usar em qualquer ambiente real.
 
+## Colocando no ar de graca (Render + Neon)
+
+O plano gratuito do Render tem **disco efemero**: o arquivo do SQLite seria apagado
+a cada restart ou deploy. Por isso em producao o banco e um Postgres gerenciado.
+Nao e preciso mudar nada no codigo — o `src/config/orm.js` usa Postgres quando
+existe `DATABASE_URL` e cai no SQLite local quando ela nao existe.
+
+1. **Banco:** crie um projeto gratuito no [Neon](https://neon.com) e copie a
+   connection string (algo como `postgresql://...@...neon.tech/neondb?sslmode=require`).
+   Evite o Postgres gratuito do proprio Render: ele expira depois de alguns meses.
+2. **Repositorio:** suba o projeto para o GitHub.
+3. **App:** no [Render](https://render.com), crie um **Blueprint** apontando para o
+   repositorio — ele le o `render.yaml` daqui e ja configura build, start e
+   `NODE_ENV`, alem de gerar o `SESSION_SECRET` sozinho.
+4. **Variaveis:** no painel, preencha `DATABASE_URL` (passo 1) e `OMDB_API_KEY`.
+5. Na primeira subida o `sequelize.sync()` cria as tabelas no Postgres, e o
+   `connect-pg-simple` cria a tabela de sessoes. E so acessar a URL e se cadastrar.
+
+O que esperar do plano gratuito:
+
+- O servico **dorme depois de 15 minutos** sem acesso; a visita seguinte espera
+  uns 30-60s pra acordar.
+- **Avatares enviados somem** em cada restart, porque continuam indo pro disco
+  local. Pra resolver de verdade, trocar o `src/middlewares/upload.js` por um
+  servico de imagens (Cloudinary tem free tier). As avaliacoes, listas e votos
+  nao sao afetados — tudo isso esta no Postgres.
+- Se o seu provedor de Postgres usar certificado proprio (nao e o caso de Neon
+  nem Render), a conexao vai falhar na validacao do SSL; nesse caso ajuste o
+  `dialectOptions.ssl` no `src/config/orm.js`.
+
 ## Observacoes para desenvolvimento
 
 ### Atualizando o banco apos mudar models
+
+A pasta `src/database/` e o arquivo `bd.sqlite` sao criados sozinhos no primeiro start (o SQLite nao cria o diretorio do arquivo, entao quem cria e o `src/config/orm.js`). As foreign keys tambem sao ligadas por conexao ali, com `PRAGMA foreign_keys = ON` — sem isso o `onDelete: CASCADE` dos models e ignorado.
 
 O projeto usa `sequelize.sync()` simples (nao `alter:true`) porque o `alter:true` briga com SQLite + foreign keys. Quando voce **alterar a estrutura de algum model** (adicionar coluna, mudar tipo, etc), apague o banco e deixe ser recriado:
 

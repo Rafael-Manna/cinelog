@@ -607,3 +607,75 @@ small.muted {
   margin-top: 0.3rem;
   font-size: 0.8rem;
 }
+
+/* ===== LISTAS EM CONJUNTO ===== */
+
+.membros { list-style: none; }
+
+.membro {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #2c333a;
+}
+.membro:last-child { border-bottom: none; }
+
+.form-membro {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #2c333a;
+}
+
+.itens-lista {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.item-lista {
+  display: flex;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #14181c;
+  border: 1px solid #2c333a;
+  border-radius: 6px;
+}
+
+.item-lista-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-lista-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.status {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.status-aprovado { color: #00c030; }
+.status-rejeitado { color: #ff6b6b; }
+.status-pendente { color: #ffb84d; }
+
+.votos {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+}
+
+.voto-grupo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+.voto-sim { color: #00c030; }
+.voto-nao { color: #ff6b6b; }
