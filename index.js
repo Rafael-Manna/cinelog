@@ -5,6 +5,7 @@ import express from 'express';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import flash from 'connect-flash';
+import cors from 'cors';
 
 import sequelize from './src/config/orm.js';
 import { aplicarMigracoes } from './src/config/migracoes.js';
@@ -23,6 +24,7 @@ import routePost from './src/routes/routePost.js';
 import routeComment from './src/routes/routeComment.js';
 import routeBusca from './src/routes/routeBusca.js';
 import routeLista from './src/routes/routeLista.js';
+import apiRoutes from './src/routes/apiRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -44,9 +46,13 @@ app.set('views', path.join(__dirname, 'views'));
 // Sem isso o cookie seguro nunca e enviado.
 if (emProducao) app.set('trust proxy', 1);
 
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src', 'public')));
+
+// Rotas da API REST para o aplicativo móvel
+app.use('/api', apiRoutes);
 
 // Guardar sessao em memoria perde todo mundo a cada restart (e vaza memoria em
 // producao). Tendo Postgres, as sessoes ficam nele.
@@ -82,15 +88,20 @@ app.use('/', routeAuth);
 app.use('/posts', routePost);
 app.use('/comentarios', routeComment);
 app.use('/listas', routeLista);
-app.use('/api/buscar', routeBusca);
 
 app.use((req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ mensagem: 'Recurso da API não encontrado.' });
+  }
   res.status(404).render('erro', { mensagem: 'Pagina nao encontrada' });
 });
 
 // Ultimo recurso: sem isso um erro de banco em rota async derruba o processo
 app.use((err, req, res, next) => {
   console.error('Erro nao tratado:', err);
+  if (req.path.startsWith('/api')) {
+    return res.status(500).json({ mensagem: 'Algo deu errado na API. Tente de novo.' });
+  }
   res.status(500).render('erro', { mensagem: 'Algo deu errado. Tente de novo.' });
 });
 

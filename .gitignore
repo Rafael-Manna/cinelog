@@ -5,3 +5,14 @@ src/public/uploads/
 *.log
 .DS_Store
 .claude/
+
+# Mobile (Expo / React Native)
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/.env
+mobile/.env.*
+!mobile/.env.example
+mobile/web-build/
+mobile/ios/
+mobile/android/

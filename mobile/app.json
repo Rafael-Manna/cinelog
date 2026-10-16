@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "CineLog",
+    "slug": "cinelog-mobile",
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "cinelog",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": [
+        "android.permission.VIBRATE"
+      ],
+      "package": "com.cinelog.mobile"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "router": {}
+    }
+  }
+}
